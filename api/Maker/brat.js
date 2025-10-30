@@ -4,7 +4,7 @@ export default {
   name: "Brat",
   desc: "Brat text generator (HD quality)",
   category: "Maker",
-  path: "/faa/brathd?apikey=&text=",
+  path: "/maker/brat?apikey=&text=",
 
   async run(req, res) {
     const { apikey, text } = req.query;
