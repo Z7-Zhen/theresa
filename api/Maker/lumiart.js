@@ -5,7 +5,7 @@ export default {
   name: "LumiArt",
   desc: "AI Art generator gaya Lumi Sky Lantern Festival",
   category: "AI",
-  path: "/maker/lumiart?apikey=&url=",
+  path: "/ai/lumiart?apikey=&url=",
 
   async run(req, res) {
     const { apikey, url } = req.query;
