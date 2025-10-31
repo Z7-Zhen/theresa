@@ -1,56 +1,42 @@
 import axios from 'axios';
 import FormData from 'form-data';
-import fs from 'fs';
-import path from 'path';
 
 export default {
   name: "Enhance Image",
-  desc: "Enhance (perjelas) gambar secara otomatis menggunakan AI EnhanceIt",
-  category: "Maker",
-  path: "/maker/enhanceimage?apikey=",
+  desc: "Enhance gambar dari URL menggunakan AI EnhanceIt",
+  category: "Tools",
+  path: "/tools/enhanceimage?apikey=&url=",
   async run(req, res) {
-    const { apikey } = req.query;
+    const { apikey, url } = req.query;
 
     if (!apikey || !global.apikey?.includes(apikey)) {
       return res.json({ status: false, error: "Apikey invalid" });
     }
 
+    if (!url) {
+      return res.json({ status: false, error: "URL gambar wajib diisi" });
+    }
+
     try {
-      // Jika pengguna upload file via form-data
-      const file = req.file?.path || req.query.file;
-      if (!file) {
-        return res.json({ status: false, error: "File tidak ditemukan. Gunakan 'file' (upload) atau ?file=url" });
-      }
+      // Unduh gambar dari URL
+      const { data } = await axios.get(url, { responseType: 'arraybuffer' });
 
+      // Kirim ke EnhanceIt
       const form = new FormData();
+      form.append('file', Buffer.from(data), { filename: 'image.jpg' });
 
-      // Jika file adalah URL, unduh dulu
-      let localFile = file;
-      if (file.startsWith("http")) {
-        const { data } = await axios.get(file, { responseType: "arraybuffer" });
-        localFile = path.join(process.cwd(), "temp-enhance.jpg");
-        fs.writeFileSync(localFile, data);
-      }
-
-      // Kirim file ke EnhanceIt
-      form.append("file", fs.createReadStream(localFile));
-
-      const response = await axios.post("https://enhanceit.pro/proxy-1.php", form, {
+      const response = await axios.post('https://enhanceit.pro/proxy-1.php', form, {
         headers: form.getHeaders(),
       });
-
-      // Hapus file sementara jika diunduh
-      if (file.startsWith("http")) fs.unlinkSync(localFile);
 
       if (!response.data?.output_url) {
         return res.json({ status: false, error: "Gagal memproses gambar." });
       }
 
-      const outputUrl = response.data.output_url;
       res.json({
         status: true,
         message: "Gambar berhasil di-enhance!",
-        result: outputUrl,
+        result: response.data.output_url,
       });
 
     } catch (error) {
