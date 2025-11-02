@@ -92,7 +92,7 @@ export default [
 
         // Download gambar dulu ke buffer
         const imgBuffer = (await axios.get(image, { responseType: 'arraybuffer' })).data;
-        const scraper = new PinterestLensScraper(process.env.PINTEREST_TOKEN || '');
+        const scraper = new PinterestLensScraper(process.env.PINTEREST_TOKEN || 'pina_AEATFWAVAABNMBAAGAAPODO4IFGPLGIBABHO2SDO7XSNM76SJEG7RY3PVFBA4VSL4HSKNTVQ25ASS5Q5BTYQ4IFE5NQUKVQA');
 
         const results = await scraper.searchByImage(imgBuffer, 10);
 
