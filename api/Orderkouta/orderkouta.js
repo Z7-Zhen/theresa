@@ -170,7 +170,7 @@ function convertCRC16(str) {
 }
 
 function generateTransactionId() {
-  return `Z7:林企业-${crypto.randomBytes(2).toString("hex").toUpperCase()}`;
+  return `Z7:PEDIA-${crypto.randomBytes(2).toString("hex").toUpperCase()}`;
 }
 
 function generateExpirationTime() {
