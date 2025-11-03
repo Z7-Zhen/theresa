@@ -1,0 +1,93 @@
+import axios from "axios";
+import * as  cheerio from "cheerio";
+
+export async function bilibili(q) {
+  try {
+    const response = await axios.get(`https://www.bilibili.tv/id/search-result?q=${encodeURIComponent(q)}`, {
+      headers: {
+        "User-Agent":
+          "Mozilla/5.0 (Linux; Android 8.1.0; CPH1803; Build/OPM1.171019.026) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.4280.141 Mobile Safari/537.36 KiToBrowser/124.0",
+        Accept: "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+        "accept-language": "id-ID",
+        referer: "https://www.bilibili.tv/id/search",
+        "upgrade-insecure-requests": "1",
+      },
+    });
+
+    const html = response.data;
+    const $ = cheerio.load(html);
+    const results = [];
+
+    $(".section__list__item").each((index, element) => {
+      const title = $(element).find(".highlights").text().trim();
+      const url =
+        "https://www.bilibili.tv" +
+        ($(element).find(".bstar-video-card__text a").attr("href") || "");
+      const thumbnail = $(element)
+        .find(".bstar-video-card__cover-img img")
+        .attr("src");
+      const duration = $(element)
+        .find(".bstar-video-card__cover-mask-text")
+        .text()
+        .trim();
+      const uploader = $(element)
+        .find(".bstar-video-card__nickname span")
+        .text()
+        .trim();
+      const uploaderUrl =
+        "https://www.bilibili.tv" +
+        ($(element).find(".bstar-video-card__nickname").attr("href") || "");
+      const views = $(element)
+        .find(".bstar-video-card__desc")
+        .text()
+        .trim()
+        .replace(" · ", "");
+
+      results.push({
+        title,
+        url,
+        thumbnail,
+        duration,
+        uploader,
+        uploaderUrl,
+        views,
+      });
+    });
+
+    return results;
+  } catch (error) {
+    console.error("Error fetching data:", error.message);
+    return [];
+  }
+}
+
+export default {
+  name: "Bstation Search",
+  desc: "Search Bilibili (Bstation) video",
+  category: "Search",
+  path: "/search/bstation?apikey=&q=",
+  async run(req, res) {
+    try {
+      const { apikey, q } = req.query;
+
+      if (!apikey || !global.apikey?.includes(apikey)) {
+        return res.json({ status: false, error: "Apikey invalid" });
+      }
+
+      if (!q) {
+        return res.json({ status: false, error: "Query is required" });
+      }
+
+      const results = await bilibili(q);
+      res.status(200).json({
+        status: true,
+        result: results,
+      });
+    } catch (error) {
+      res.status(500).json({
+        status: false,
+        error: error.message,
+      });
+    }
+  },
+};
