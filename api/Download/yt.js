@@ -1,85 +1,156 @@
 import fetch from 'node-fetch';
 
-async function downloadSingleFormat(url, format) {
-  const staticData = Object.freeze({
-    baseUrl: 'https://cnv.cx',
-    headers: {
-      'accept-encoding': 'gzip, deflate, br, zstd',
-      'origin': 'https://frame.y2meta-uk.com',
-    }
-  });
+const yt = {
+  get baseUrl() {
+    return { origin: 'https://ssvid.net' };
+  },
 
-  // get key
-  const keyRes = await fetch(staticData.baseUrl + '/v2/sanity/key', {
-    headers: staticData.headers
-  });
-  if (!keyRes.ok) throw new Error(`${keyRes.status} ${keyRes.statusText} in getKey`);
-  const { key } = await keyRes.json();
+  get baseHeaders() {
+    return {
+      'content-type': 'application/x-www-form-urlencoded; charset=UTF-8',
+      'origin': this.baseUrl.origin,
+      'referer': this.baseUrl.origin + '/youtube-to-mp3'
+    };
+  },
 
-  // resolve payload
-  const availableFormats = ['128k','320k','144p','240p','360p','720p','1080p'];
-  if (!availableFormats.includes(format)) throw new Error(`Invalid format: ${format}`);
-  const ftype = format.endsWith('k') ? 'mp3' : 'mp4';
-  const audioBitrate = ftype === 'mp3' ? parseInt(format) + '' : '128';
-  const videoQuality = ftype === 'mp4' ? parseInt(format) + '' : '720';
+  validateFormat(userFormat) {
+    const validFormat = ['mp3', '360p', '720p', '1080p'];
+    if (!validFormat.includes(userFormat)) throw new Error(`invalid format!. available formats: ${validFormat.join(', ')}`);
+  },
 
-  const payload = {
-    link: url,
-    format: ftype,
-    audioBitrate,
-    videoQuality,
-    filenameStyle: 'pretty',
-    vCodec: 'h264'
-  };
+  handleFormat(userFormat, searchJson) {
+    this.validateFormat(userFormat);
+    let result;
+    if (userFormat === 'mp3') {
+      result = searchJson.links?.mp3?.mp3128?.k;
+    } else {
+      const allFormats = Object.entries(searchJson.links.mp4);
+      const quality = allFormats
+        .map(v => v[1].q)
+        .filter(v => /\d+p/.test(v))
+        .map(v => parseInt(v))
+        .sort((a, b) => b - a)
+        .map(v => v + 'p');
 
-  // convert
-  const convRes = await fetch(staticData.baseUrl + '/v2/converter', {
-    method: 'POST',
-    headers: { key, ...staticData.headers },
-    body: new URLSearchParams(payload)
-  });
-  if (!convRes.ok) throw new Error(`${convRes.status} ${convRes.statusText} in convert`);
-  const { url: dlUrl, filename } = await convRes.json();
-
-  // download buffer
-  const r = await fetch(dlUrl, { headers: { referer: 'https://v6.www-y2mate.com/' } });
-  if (!r.ok) throw new Error(`${r.status} ${r.statusText} in getBuffer`);
-  const buffer = Buffer.from(await r.arrayBuffer());
-
-  const sanitizedFileName = filename.replaceAll(/[^A-Za-z0-9]/g, '_').replace(/_+/g,'_').toLowerCase();
-
-  return { fileName: sanitizedFileName, buffer };
-}
-
-export default {
-  name: "YouTube Downloader",
-  desc: "Download YouTube video/audio semua format, return base64",
-  category: "Tools",
-  path: "/tools/yt?apikey=&url=",
-  
-  async run(req, res) {
-    const { apikey, url } = req.query;
-
-    if (!apikey || !global.apikey?.includes(apikey)) {
-      return res.json({ status: false, error: 'Apikey invalid' });
-    }
-
-    if (!url) {
-      return res.json({ status: false, error: 'Url is required' });
-    }
-
-    const formats = ['128k','320k','144p','240p','360p','720p','1080p'];
-    const results = [];
-
-    for (let f of formats) {
-      try {
-        const { fileName, buffer } = await downloadSingleFormat(url, f);
-        results.push({ fileName, format: f, data: buffer.toString('base64') });
-      } catch (err) {
-        results.push({ fileName: null, format: f, error: err.message });
+      let selectedFormat = quality.includes(userFormat) ? userFormat : quality[0];
+      if (selectedFormat !== userFormat) {
+        console.log(`format ${userFormat} not available. fallback to ${selectedFormat}`);
       }
+
+      const find = allFormats.find(v => v[1].q === selectedFormat);
+      result = find?.[1]?.k;
+    }
+    if (!result) throw new Error(`${userFormat} not found`);
+    return result;
+  },
+
+  async hit(path, payload) {
+    try {
+      const body = new URLSearchParams(payload);
+      const opts = { method: 'POST', headers: this.baseHeaders, body };
+      const r = await fetch(`${this.baseUrl.origin}${path}`, opts);
+      console.log('hit', path);
+      if (!r.ok) throw new Error(`${r.status} ${r.statusText}\n${await r.text()}`);
+      return await r.json();
+    } catch (e) {
+      throw new Error(`${path}\n${e.message}`);
+    }
+  },
+
+  async download(queryOrYtUrl, userFormat = 'mp3') {
+    this.validateFormat(userFormat);
+
+    let search = await this.hit('/api/ajax/search', {
+      query: queryOrYtUrl,
+      cf_token: '',
+      vt: 'youtube'
+    });
+
+    if (search.p === 'search') {
+      if (!search?.items?.length) throw new Error(`No results for ${queryOrYtUrl}`);
+      const { v, t } = search.items[0];
+      const videoUrl = 'https://www.youtube.com/watch?v=' + v;
+      console.log(`[found]\ntitle : ${t}\nurl   : ${videoUrl}`);
+
+      search = await this.hit('/api/ajax/search', {
+        query: videoUrl,
+        cf_token: '',
+        vt: 'youtube'
+      });
     }
 
-    return res.json({ status: true, url, files: results });
+    const vid = search.vid;
+    const k = this.handleFormat(userFormat, search);
+
+    const convert = await this.hit('/api/ajax/convert', { k, vid });
+
+    if (convert.c_status === 'CONVERTING') {
+      let convert2;
+      const limit = 5;
+      let attempt = 0;
+      do {
+        attempt++;
+        console.log(`cek convert ${attempt}/${limit}`);
+        convert2 = await this.hit('/api/convert/check?hl=en', {
+          vid,
+          b_id: convert.b_id
+        });
+        if (convert2.c_status === 'CONVERTED') return convert2;
+        await new Promise(re => setTimeout(re, 5000));
+      } while (attempt < limit && convert2.c_status === 'CONVERTING');
+
+      throw new Error('File not ready yet');
+    } else {
+      return convert;
+    }
   }
 };
+
+export default [
+  {
+    name: "Ytmp4",
+    desc: "Download video YouTube",
+    category: "Downloader",
+    path: "/download/ytmp4?apikey=&url=",
+    async run(req, res) {
+      try {
+        const { apikey, url } = req.query;
+        if (!apikey || !global.apikey?.includes(apikey))
+          return res.json({ status: false, error: "Apikey invalid" });
+        if (!url)
+          return res.json({ status: false, error: "Url is required" });
+
+        const results = await yt.download(url, "360p");
+        res.status(200).json({
+          status: true,
+          result: results.dlink
+        });
+      } catch (error) {
+        res.status(500).json({ status: false, error: error.message });
+      }
+    }
+  },
+  {
+    name: "Ytmp3",
+    desc: "Download audio YouTube",
+    category: "Downloader",
+    path: "/download/ytmp3?apikey=&url=",
+    async run(req, res) {
+      try {
+        const { apikey, url } = req.query;
+        if (!apikey || !global.apikey?.includes(apikey))
+          return res.json({ status: false, error: "Apikey invalid" });
+        if (!url)
+          return res.json({ status: false, error: "Url is required" });
+
+        const results = await yt.download(url, "mp3");
+        res.status(200).json({
+          status: true,
+          result: results.dlink
+        });
+      } catch (error) {
+        res.status(500).json({ status: false, error: error.message });
+      }
+    }
+  }
+];
