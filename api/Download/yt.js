@@ -1,135 +1,55 @@
-import fetch from "node-fetch";
+import axios from "axios";
 
-// ================== Ytmp3 ==================
-export const ytmp3cc = async (url) => {
-    const r = await fetch("https://e.ecoe.cc/?_=" + Math.random(), {
-        body: JSON.stringify({ url }),
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json"
-        }
+async function ytmp4(url) {
+  try {
+    const res = await axios.get("https://www.a2zconverter.com/api/files/new-proxy", {
+      params: { url },
+      headers: {
+        "Accept": "application/json, text/plain, */*",
+        "Accept-Language": "en-US,en;q=0.9",
+        "Cache-Control": "no-cache",
+        "Pragma": "no-cache",
+        "Referer": "https://www.a2zconverter.com/",
+        "User-Agent":
+          "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.0.0 Safari/537.36",
+      },
     });
 
-    if (!r.ok) {
-        const text = await r.text().catch(() => null);
-        throw Error(`fetch is not ok! ${r.status} ${r.statusText}\n${text}`);
-    }
+    // Ambil link MP4
+    const mp4 = res.data?.formats?.find(f => f.type === "mp4" && f.url)?.url || null;
+    if (!mp4) throw new Error("MP4 link tidak ditemukan");
 
-    return await r.json();
-}
-
-// ================== Ytmp4 ==================
-export const ytmp4 = {
-    headers: {
-        "origin": "https://ytmp4.blog",
-        "referer": "https://ytmp4.blog"
-    },
-
-    search: async (query) => {
-        if (typeof (query) !== "string" || query.length === 0) throw Error("invalid search")
-        const response = await fetch("https://us-central1-ytmp3-tube.cloudfunctions.net/searchResult?q=" + encodeURIComponent(query), {
-            headers: ytmp4.headers
-        })
-        if (!response.ok) throw Error(`fetch search is not ok~ ${response.status} ${response.statusText}\n${await response.text() || null}`)
-        const data = await response.json()
-        return data
-    },
-
-    download: async (youtubeUrl) => {
-        const api = "https://api.ytmp3.tube/mp3/1?url=" + youtubeUrl
-        const response = await fetch(api, { headers: ytmp4.headers })
-        if (!response.ok) throw Error(`fetch download on first hit is not ok~ ${response.status} ${response.statusText}\n${await response.text() || null}`)
-        const html = await response.text()
-        const match = html.match(/{\\"videoId\\":(.+?)}/)?.[0]
-        if (!match) throw Error(`gagal menemukan match video id pada function download first hit.`)
-        const cleaned = match.replaceAll(/\\/g, "")
-        const json = JSON.parse(cleaned)
-
-        let json2 = {}
-        const body = JSON.stringify({
-            "id": json.videoId,
-            "audioBitrate": "128",
-            "token": json.token,
-            "timestamp": json.timestamp,
-            "secretToken": json.encryptedVideoId
-        })
-        const headers = {
-            "origin": "https://api.ytmp3.tube",
-            "referer": api
-        }
-
-        do {
-            const response2 = await fetch("https://api.ytmp3.tube/api/download/mp3", {
-                headers,
-                body,
-                method: "POST",
-            })
-            if (!response2.ok) throw Error(`fetch download on second hit is not ok~ ${response2.status} ${response2.statusText}\n${await response2.text() || null}`)
-            json2 = await response2.json()
-
-            await new Promise(re => setTimeout(re, 5000))
-            console.log("cek status")
-            if (json2.status == "fail") throw Error(`error dari server. katanya: ${json2.msg}`)
-        } while (json2.status == "processing")
-        
-        return json2
-    },
-
-    searchAndDownload: async (query) => {
-        const wolep = await ytmp4.search(query)
-        const url = wolep[0].url
-        const data = await ytmp4.download(url)
-        return data
-    }
-}
-
-// ================== Routes / Endpoints ==================
-export const routes = [
-  {
-    name: "Ytmp4",
-    desc: "Download video youtube",
-    category: "Downloader",
-    path: "/download/ytmp4?apikey=&url=",
-    async run(req, res) {
-      try {
-        const { apikey, url } = req.query;
-        if (!apikey || !global.apikey.includes(apikey))
-          return res.json({ status: false, error: "Apikey invalid" });
-        if (!url)
-          return res.json({ status: false, error: "Url is required" });
-
-        const results = await ytmp4.download(url)
-        res.status(200).json({
-          status: true,
-          result: results.link,
-        });
-      } catch (error) {
-        res.status(500).json({ status: false, error: error.message });
-      }
-    },
-  },
-
-  {
-    name: "Ytmp3",
-    desc: "Download audio youtube",
-    category: "Downloader",
-    path: "/download/ytmp3?apikey=&url=",
-    async run(req, res) {
-      try {
-        const { apikey, url } = req.query;
-        if (!apikey || !global.apikey.includes(apikey))
-          return res.json({ status: false, error: "Apikey invalid" });
-        if (!url)
-          return res.json({ status: false, error: "Url is required" });
-
-        const results = await ytmp3cc(url)
-        res.status(200).json({
-          status: true,
-          result: results.url
-        });
-      } catch (error) {
-        res.status(500).json({ status: false, error: error.message });
-      }
-    },
+    return {
+      title: res.data?.title || "Unknown",
+      thumbnail: res.data?.thumbnail || null,
+      mp4
+    };
+  } catch (err) {
+    throw new Error("Gagal memproses URL: " + err.message);
   }
-];
+}
+
+export default {
+  name: "YTMP4 Downloader",
+  desc: "Download video YouTube/Shorts ke MP4",
+  category: "Downloader",
+  path: "/downloader/ytmp4?apikey=&url=",
+  async run(req, res) {
+    const { apikey, url } = req.query;
+
+    if (!apikey || !global.apikey.includes(apikey)) {
+      return res.json({ status: false, error: "Apikey invalid" });
+    }
+
+    if (!url) {
+      return res.json({ status: false, error: "Parameter url wajib diisi" });
+    }
+
+    try {
+      const data = await ytmp4(url);
+      return res.json({ status: true, url, result: data });
+    } catch (err) {
+      return res.status(500).json({ status: false, error: err.message });
+    }
+  },
+};
