@@ -145,7 +145,7 @@ function createImageResponse(buffer, filename = null) {
 export default [
   {
     method: "GET",
-    endpoint: "/api/canvas/welcomev2",
+    endpoint: "/canvas/welcomev2",
     name: "Welcome v2",
     category: "Canvas",
     description: "Generate a welcome banner image (v2) via URL query.",
@@ -178,7 +178,7 @@ export default [
   },
   {
     method: "POST",
-    endpoint: "/api/canvas/welcomev2",
+    endpoint: "/canvas/welcomev2",
     name: "Welcome v2 (Upload)",
     category: "Canvas",
     description: "Generate a welcome banner from uploaded files.",

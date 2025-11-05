@@ -5,14 +5,14 @@ import { fileURLToPath } from "url";
 // 🧩 Buat path absolut ke font SFPRODISPLAYSEMIBOLDITALIC.OTF
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-const fontPath = path.join(__dirname, "../../assets/fonts/SFPRODISPLAYSEMIBOLDITALIC.OTF");
+const fontPath = path.join(__dirname, "../../assets/fonts/SFPRODISPLAYREGULAR.OTF");
 
 // 🪶 Register font biar bisa dipakai di canvas
 registerFont(fontPath, { family: "SFProDisplaySemiBoldItalic" });
 
 export default {
   name: "IQC",
-  desc: "Generate gambar IQC dengan teks (posisi kiri) dan jam otomatis (WIB, font SF Pro Display SemiBold Italic)",
+  desc: "Generate gambar IQC dengan teks (posisi kiri) dan jam otomatis",
   category: "Maker",
   path: "/maker/iqc?apikey=&text=",
 
