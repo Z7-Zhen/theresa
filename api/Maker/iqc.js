@@ -2,17 +2,17 @@ import { createCanvas, loadImage, registerFont } from "canvas";
 import path from "path";
 import { fileURLToPath } from "url";
 
-// 🧩 Buat path absolut ke font Times.ttf
+// 🧩 Buat path absolut ke font SFPRODISPLAYSEMIBOLDITALIC.OTF
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-const fontPath = path.join(__dirname, "../../assets/fonts/times.ttf");
+const fontPath = path.join(__dirname, "../../assets/fonts/SFPRODISPLAYSEMIBOLDITALIC.OTF");
 
 // 🪶 Register font biar bisa dipakai di canvas
-registerFont(fontPath, { family: "TimesCustom" });
+registerFont(fontPath, { family: "SFProDisplaySemiBoldItalic" });
 
 export default {
   name: "IQC",
-  desc: "Generate gambar IQC dengan teks (posisi kiri) dan jam otomatis",
+  desc: "Generate gambar IQC dengan teks (posisi kiri) dan jam otomatis (WIB, font SF Pro Display SemiBold Italic)",
   category: "Maker",
   path: "/maker/iqc?apikey=&text=",
 
@@ -29,9 +29,12 @@ export default {
         return res.status(400).json({ status: false, error: "Missing parameter: text" });
       }
 
-      // 🕒 Ambil jam server saat request
+      // 🕒 Ambil jam Indonesia (WIB)
       const now = new Date();
-      const jam = now.toLocaleTimeString("en-GB", { hour12: false });
+      const jam = now.toLocaleTimeString("id-ID", {
+        timeZone: "Asia/Jakarta",
+        hour12: false,
+      });
 
       // 💬 Pecah teks jika panjang
       const kata = text.trim().split(/\s+/);
@@ -57,23 +60,23 @@ export default {
       const bg = await loadImage(kiriBg);
       ctx.drawImage(bg, 0, 0, canvas.width, canvas.height);
 
-      // ✍️ Atur gaya teks & posisi (pakai font Times)
+      // ✍️ Atur gaya teks & posisi (pakai font SF Pro Display SemiBold Italic)
       ctx.fillStyle = "#fff";
       ctx.textBaseline = "top";
-      ctx.font = "28px 'TimesCustom'";
+      ctx.font = "28px 'SFProDisplaySemiBoldItalic'";
 
       if (kata.length < 5) {
         drawMultilineText(ctx, teksFinal, 62, 768, 740, 32);
-        ctx.font = "bold 26px 'TimesCustom'";
+        ctx.font = "bold 26px 'SFProDisplaySemiBoldItalic'";
         ctx.fillText(jam, 380, 10);
-        ctx.font = "20px 'TimesCustom'";
+        ctx.font = "20px 'SFProDisplaySemiBoldItalic'";
         ctx.fillStyle = "#aaa";
         ctx.fillText(jam, 390, 787);
       } else {
         drawMultilineText(ctx, teksFinal, 67, 470, 740, 32);
-        ctx.font = "bold 26px 'TimesCustom'";
+        ctx.font = "bold 26px 'SFProDisplaySemiBoldItalic'";
         ctx.fillText(jam, 385, 11);
-        ctx.font = "20px 'TimesCustom'";
+        ctx.font = "20px 'SFProDisplaySemiBoldItalic'";
         ctx.fillStyle = "#aaa";
         ctx.fillText(jam, 587, 517);
       }
