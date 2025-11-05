@@ -1,156 +1,135 @@
-import fetch from 'node-fetch';
+import fetch from "node-fetch";
 
-const yt = {
-  get baseUrl() {
-    return { origin: 'https://ssvid.net' };
-  },
-
-  get baseHeaders() {
-    return {
-      'content-type': 'application/x-www-form-urlencoded; charset=UTF-8',
-      'origin': this.baseUrl.origin,
-      'referer': this.baseUrl.origin + '/youtube-to-mp3'
-    };
-  },
-
-  validateFormat(userFormat) {
-    const validFormat = ['mp3', '360p', '720p', '1080p'];
-    if (!validFormat.includes(userFormat)) throw new Error(`invalid format!. available formats: ${validFormat.join(', ')}`);
-  },
-
-  handleFormat(userFormat, searchJson) {
-    this.validateFormat(userFormat);
-    let result;
-    if (userFormat === 'mp3') {
-      result = searchJson.links?.mp3?.mp3128?.k;
-    } else {
-      const allFormats = Object.entries(searchJson.links.mp4);
-      const quality = allFormats
-        .map(v => v[1].q)
-        .filter(v => /\d+p/.test(v))
-        .map(v => parseInt(v))
-        .sort((a, b) => b - a)
-        .map(v => v + 'p');
-
-      let selectedFormat = quality.includes(userFormat) ? userFormat : quality[0];
-      if (selectedFormat !== userFormat) {
-        console.log(`format ${userFormat} not available. fallback to ${selectedFormat}`);
-      }
-
-      const find = allFormats.find(v => v[1].q === selectedFormat);
-      result = find?.[1]?.k;
-    }
-    if (!result) throw new Error(`${userFormat} not found`);
-    return result;
-  },
-
-  async hit(path, payload) {
-    try {
-      const body = new URLSearchParams(payload);
-      const opts = { method: 'POST', headers: this.baseHeaders, body };
-      const r = await fetch(`${this.baseUrl.origin}${path}`, opts);
-      console.log('hit', path);
-      if (!r.ok) throw new Error(`${r.status} ${r.statusText}\n${await r.text()}`);
-      return await r.json();
-    } catch (e) {
-      throw new Error(`${path}\n${e.message}`);
-    }
-  },
-
-  async download(queryOrYtUrl, userFormat = 'mp3') {
-    this.validateFormat(userFormat);
-
-    let search = await this.hit('/api/ajax/search', {
-      query: queryOrYtUrl,
-      cf_token: '',
-      vt: 'youtube'
+// ================== Ytmp3 ==================
+export const ytmp3cc = async (url) => {
+    const r = await fetch("https://e.ecoe.cc/?_=" + Math.random(), {
+        body: JSON.stringify({ url }),
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        }
     });
 
-    if (search.p === 'search') {
-      if (!search?.items?.length) throw new Error(`No results for ${queryOrYtUrl}`);
-      const { v, t } = search.items[0];
-      const videoUrl = 'https://www.youtube.com/watch?v=' + v;
-      console.log(`[found]\ntitle : ${t}\nurl   : ${videoUrl}`);
-
-      search = await this.hit('/api/ajax/search', {
-        query: videoUrl,
-        cf_token: '',
-        vt: 'youtube'
-      });
+    if (!r.ok) {
+        const text = await r.text().catch(() => null);
+        throw Error(`fetch is not ok! ${r.status} ${r.statusText}\n${text}`);
     }
 
-    const vid = search.vid;
-    const k = this.handleFormat(userFormat, search);
+    return await r.json();
+}
 
-    const convert = await this.hit('/api/ajax/convert', { k, vid });
+// ================== Ytmp4 ==================
+export const ytmp4 = {
+    headers: {
+        "origin": "https://ytmp4.blog",
+        "referer": "https://ytmp4.blog"
+    },
 
-    if (convert.c_status === 'CONVERTING') {
-      let convert2;
-      const limit = 5;
-      let attempt = 0;
-      do {
-        attempt++;
-        console.log(`cek convert ${attempt}/${limit}`);
-        convert2 = await this.hit('/api/convert/check?hl=en', {
-          vid,
-          b_id: convert.b_id
-        });
-        if (convert2.c_status === 'CONVERTED') return convert2;
-        await new Promise(re => setTimeout(re, 5000));
-      } while (attempt < limit && convert2.c_status === 'CONVERTING');
+    search: async (query) => {
+        if (typeof (query) !== "string" || query.length === 0) throw Error("invalid search")
+        const response = await fetch("https://us-central1-ytmp3-tube.cloudfunctions.net/searchResult?q=" + encodeURIComponent(query), {
+            headers: ytmp4.headers
+        })
+        if (!response.ok) throw Error(`fetch search is not ok~ ${response.status} ${response.statusText}\n${await response.text() || null}`)
+        const data = await response.json()
+        return data
+    },
 
-      throw new Error('File not ready yet');
-    } else {
-      return convert;
+    download: async (youtubeUrl) => {
+        const api = "https://api.ytmp3.tube/mp3/1?url=" + youtubeUrl
+        const response = await fetch(api, { headers: ytmp4.headers })
+        if (!response.ok) throw Error(`fetch download on first hit is not ok~ ${response.status} ${response.statusText}\n${await response.text() || null}`)
+        const html = await response.text()
+        const match = html.match(/{\\"videoId\\":(.+?)}/)?.[0]
+        if (!match) throw Error(`gagal menemukan match video id pada function download first hit.`)
+        const cleaned = match.replaceAll(/\\/g, "")
+        const json = JSON.parse(cleaned)
+
+        let json2 = {}
+        const body = JSON.stringify({
+            "id": json.videoId,
+            "audioBitrate": "128",
+            "token": json.token,
+            "timestamp": json.timestamp,
+            "secretToken": json.encryptedVideoId
+        })
+        const headers = {
+            "origin": "https://api.ytmp3.tube",
+            "referer": api
+        }
+
+        do {
+            const response2 = await fetch("https://api.ytmp3.tube/api/download/mp3", {
+                headers,
+                body,
+                method: "POST",
+            })
+            if (!response2.ok) throw Error(`fetch download on second hit is not ok~ ${response2.status} ${response2.statusText}\n${await response2.text() || null}`)
+            json2 = await response2.json()
+
+            await new Promise(re => setTimeout(re, 5000))
+            console.log("cek status")
+            if (json2.status == "fail") throw Error(`error dari server. katanya: ${json2.msg}`)
+        } while (json2.status == "processing")
+        
+        return json2
+    },
+
+    searchAndDownload: async (query) => {
+        const wolep = await ytmp4.search(query)
+        const url = wolep[0].url
+        const data = await ytmp4.download(url)
+        return data
     }
-  }
-};
+}
 
-export default [
+// ================== Routes / Endpoints ==================
+export const routes = [
   {
     name: "Ytmp4",
-    desc: "Download video YouTube",
+    desc: "Download video youtube",
     category: "Downloader",
     path: "/download/ytmp4?apikey=&url=",
     async run(req, res) {
       try {
         const { apikey, url } = req.query;
-        if (!apikey || !global.apikey?.includes(apikey))
+        if (!apikey || !global.apikey.includes(apikey))
           return res.json({ status: false, error: "Apikey invalid" });
         if (!url)
           return res.json({ status: false, error: "Url is required" });
 
-        const results = await yt.download(url, "360p");
+        const results = await ytmp4.download(url)
         res.status(200).json({
           status: true,
-          result: results.dlink
+          result: results.link,
         });
       } catch (error) {
         res.status(500).json({ status: false, error: error.message });
       }
-    }
+    },
   },
+
   {
     name: "Ytmp3",
-    desc: "Download audio YouTube",
+    desc: "Download audio youtube",
     category: "Downloader",
     path: "/download/ytmp3?apikey=&url=",
     async run(req, res) {
       try {
         const { apikey, url } = req.query;
-        if (!apikey || !global.apikey?.includes(apikey))
+        if (!apikey || !global.apikey.includes(apikey))
           return res.json({ status: false, error: "Apikey invalid" });
         if (!url)
           return res.json({ status: false, error: "Url is required" });
 
-        const results = await yt.download(url, "mp3");
+        const results = await ytmp3cc(url)
         res.status(200).json({
           status: true,
-          result: results.dlink
+          result: results.url
         });
       } catch (error) {
         res.status(500).json({ status: false, error: error.message });
       }
-    }
+    },
   }
 ];
