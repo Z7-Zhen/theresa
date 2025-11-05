@@ -1,4 +1,14 @@
-import { createCanvas, loadImage } from "canvas";
+import { createCanvas, loadImage, registerFont } from "canvas";
+import path from "path";
+import { fileURLToPath } from "url";
+
+// 🧩 Buat path absolut ke font Times.ttf
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+const fontPath = path.join(__dirname, "../../assets/fonts/times.ttf");
+
+// 🪶 Register font biar bisa dipakai di canvas
+registerFont(fontPath, { family: "TimesCustom" });
 
 export default {
   name: "IQC",
@@ -19,7 +29,7 @@ export default {
         return res.status(400).json({ status: false, error: "Missing parameter: text" });
       }
 
-      // 🕒 Ambil jam server saat request (format 24 jam)
+      // 🕒 Ambil jam server saat request
       const now = new Date();
       const jam = now.toLocaleTimeString("en-GB", { hour12: false });
 
@@ -47,23 +57,23 @@ export default {
       const bg = await loadImage(kiriBg);
       ctx.drawImage(bg, 0, 0, canvas.width, canvas.height);
 
-      // ✍️ Atur gaya teks & posisi
+      // ✍️ Atur gaya teks & posisi (pakai font Times)
       ctx.fillStyle = "#fff";
       ctx.textBaseline = "top";
-      ctx.font = "28px sans-serif";
+      ctx.font = "28px 'TimesCustom'";
 
       if (kata.length < 5) {
         drawMultilineText(ctx, teksFinal, 62, 768, 740, 32);
-        ctx.font = "bold 26px sans-serif";
+        ctx.font = "bold 26px 'TimesCustom'";
         ctx.fillText(jam, 380, 10);
-        ctx.font = "20px sans-serif";
+        ctx.font = "20px 'TimesCustom'";
         ctx.fillStyle = "#aaa";
         ctx.fillText(jam, 390, 787);
       } else {
         drawMultilineText(ctx, teksFinal, 67, 470, 740, 32);
-        ctx.font = "bold 26px sans-serif";
+        ctx.font = "bold 26px 'TimesCustom'";
         ctx.fillText(jam, 385, 11);
-        ctx.font = "20px sans-serif";
+        ctx.font = "20px 'TimesCustom'";
         ctx.fillStyle = "#aaa";
         ctx.fillText(jam, 587, 517);
       }
@@ -73,7 +83,6 @@ export default {
       res.setHeader("Content-Type", "image/jpeg");
       res.setHeader("Content-Length", buffer.length);
       res.end(buffer);
-
     } catch (err) {
       console.error("[IQC ERROR]", err);
       res.status(500).json({ status: false, error: err.message });
