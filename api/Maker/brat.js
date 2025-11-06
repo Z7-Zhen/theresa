@@ -13,7 +13,7 @@ registerFont(path.join(__dirname, "../../assets/fonts/SFPRODISPLAYREGULAR.OTF"),
 
 export default {
   name: "Brat",
-  desc: "Brat text generator (HD paper background)",
+  desc: "Brat text generator",
   category: "Maker",
   path: "/maker/brat?apikey=&text=",
 
@@ -48,7 +48,7 @@ export default {
       ctx.fillStyle = gradient;
       ctx.fillRect(0, 0, width, height);
 
-      // 🌤️ Efek cahaya lembut
+      // 🌤️ Efek cahaya lembut di atas
       const lightGradient = ctx.createRadialGradient(
         width / 2,
         height / 3,
@@ -62,47 +62,41 @@ export default {
       ctx.fillStyle = lightGradient;
       ctx.fillRect(0, 0, width, height);
 
-      // ✏️ Atur teks
+      // ✏️ Teks besar dan sisi kiri
       const words = text.trim().split(/\s+/);
-      let fontSize = 160; // mulai besar, nanti menyesuaikan
-      ctx.textAlign = "center";
-      ctx.textBaseline = "middle";
+      let fontSize = 220; // lebih besar dari sebelumnya
+      ctx.textAlign = "left";
+      ctx.textBaseline = "top";
       ctx.fillStyle = "black";
 
-      // 🔤 Cari ukuran font otomatis biar proporsional
+      // 🔤 Cek supaya tidak keluar dari batas kanan
       while (true) {
         ctx.font = `bold ${fontSize}px SFProDisplay`;
         const metrics = ctx.measureText(text);
-        if (metrics.width > width - 100 || fontSize * 1.2 > height) {
-          fontSize -= 4;
+        if (metrics.width > width - 150 || fontSize * 1.2 > height - 100) {
+          fontSize -= 5;
         } else break;
       }
 
-      // ✂️ Bungkus teks biar tetap pas di dalam canvas
+      // ✂️ Bungkus teks biar tetap proporsional
       const lines = [];
       let currentLine = "";
       for (let word of words) {
         const testLine = currentLine ? `${currentLine} ${word}` : word;
         const metrics = ctx.measureText(testLine);
-        if (metrics.width > width - 80 && currentLine) {
+        if (metrics.width > width - 150 && currentLine) {
           lines.push(currentLine);
           currentLine = word;
         } else currentLine = testLine;
       }
       lines.push(currentLine);
 
-      // 🔄 Sesuaikan ulang ukuran font jika terlalu banyak baris
-      const lineHeight = fontSize * 1.2;
-      if (lines.length * lineHeight > height - 100) {
-        fontSize = fontSize * (height - 100) / (lines.length * lineHeight);
-        ctx.font = `bold ${fontSize}px SFProDisplay`;
-      }
+      const lineHeight = fontSize * 1.1;
+      const startY = (height - lines.length * lineHeight) / 2; // agak tengah tapi tetap sisi kiri
+      const startX = 100; // offset kiri
 
-      // 🧭 Posisi vertikal tengah
-      const newLineHeight = fontSize * 1.2;
-      const startY = height / 2 - ((lines.length - 1) * newLineHeight) / 2;
       lines.forEach((line, i) => {
-        ctx.fillText(line, width / 2, startY + i * newLineHeight);
+        ctx.fillText(line, startX, startY + i * lineHeight);
       });
 
       // 📦 Output PNG
