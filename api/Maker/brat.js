@@ -34,51 +34,51 @@ export default {
       const canvas = createCanvas(width, height);
       const ctx = canvas.getContext("2d");
 
-      // 🩶 Background kertas putih HD (gradasi lembut)
+      // 🩶 Background kertas putih (gradasi kecil biar nggak terlalu gede)
       const gradient = ctx.createRadialGradient(
-        width / 2,
-        height / 2,
+        width * 0.3, // posisi lebih ke kiri atas
+        height * 0.3,
         100,
-        width / 2,
-        height / 2,
-        width / 1.2
+        width * 0.3,
+        height * 0.3,
+        width * 0.6 // lebih kecil
       );
       gradient.addColorStop(0, "#ffffff");
-      gradient.addColorStop(1, "#f2f2f2");
+      gradient.addColorStop(1, "#f0f0f0");
       ctx.fillStyle = gradient;
       ctx.fillRect(0, 0, width, height);
 
-      // 🌤️ Efek cahaya lembut di atas
+      // 🌤️ Cahaya lembut di pojok kiri atas
       const lightGradient = ctx.createRadialGradient(
-        width / 2,
-        height / 3,
+        width * 0.25,
+        height * 0.2,
         50,
-        width / 2,
-        height / 3,
-        width / 2
+        width * 0.25,
+        height * 0.2,
+        width * 0.5
       );
-      lightGradient.addColorStop(0, "rgba(255,255,255,0.6)");
+      lightGradient.addColorStop(0, "rgba(255,255,255,0.8)");
       lightGradient.addColorStop(1, "rgba(255,255,255,0)");
       ctx.fillStyle = lightGradient;
       ctx.fillRect(0, 0, width, height);
 
-      // ✏️ Teks besar dan sisi kiri
+      // ✏️ Teks super besar di kiri atas
       const words = text.trim().split(/\s+/);
-      let fontSize = 220; // lebih besar dari sebelumnya
+      let fontSize = 300; // lebih besar lagi
       ctx.textAlign = "left";
       ctx.textBaseline = "top";
       ctx.fillStyle = "black";
 
-      // 🔤 Cek supaya tidak keluar dari batas kanan
+      // 🔤 Kurangi ukuran jika keluar dari batas kanan
       while (true) {
         ctx.font = `bold ${fontSize}px SFProDisplay`;
         const metrics = ctx.measureText(text);
-        if (metrics.width > width - 150 || fontSize * 1.2 > height - 100) {
-          fontSize -= 5;
+        if (metrics.width > width - 100 || fontSize * 1.2 > height - 100) {
+          fontSize -= 8;
         } else break;
       }
 
-      // ✂️ Bungkus teks biar tetap proporsional
+      // ✂️ Bungkus teks biar tetap muat
       const lines = [];
       let currentLine = "";
       for (let word of words) {
@@ -91,9 +91,9 @@ export default {
       }
       lines.push(currentLine);
 
-      const lineHeight = fontSize * 1.1;
-      const startY = (height - lines.length * lineHeight) / 2; // agak tengah tapi tetap sisi kiri
-      const startX = 100; // offset kiri
+      const lineHeight = fontSize * 1.05;
+      const startX = 80; // agak menjorok ke kiri
+      const startY = 100; // teks mulai dari atas
 
       lines.forEach((line, i) => {
         ctx.fillText(line, startX, startY + i * lineHeight);
