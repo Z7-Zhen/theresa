@@ -1,4 +1,4 @@
-mport axios from 'axios'
+import axios from 'axios'
 
 async function getPPCouple() {
   try {
