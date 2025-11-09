@@ -1,93 +1,70 @@
-import axios from "axios";
-import https from "https";
+// douyin-puppeteer.js
+import puppeteer from "puppeteer";
 
-const agent = new https.Agent({ rejectUnauthorized: false }); // Bypass SSL untuk Termux/VPS
+export async function douyinSearch(query) {
+  if (!query) throw new Error("Query required");
 
-async function fetchDouyin(keyword) {
-  try {
-    if (!keyword) throw new Error("Masukkan kata kunci pencarian.");
+  const searchUrl = `https://so.douyin.com/s?douyin_web_id=7570740926563485190&keyword=${encodeURIComponent(query)}&enter_method=web_search`;
 
-    const encoded = encodeURIComponent(keyword);
-    const url = `https://www.douyin.com/aweme/v1/web/general/search/single/?device_platform=webapp&aid=6383&channel=channel_pc_web&search_channel=aweme_general&enable_history=1&keyword=${encoded}&search_source=normal_search&query_correct_type=1&is_filter_search=0&offset=0&count=10`;
+  const browser = await puppeteer.launch({
+    headless: true, // set false kalau mau lihat browser
+    args: ["--no-sandbox", "--disable-setuid-sandbox"],
+  });
+  const page = await browser.newPage();
 
-    const headers = {
-      "accept": "application/json, text/plain, */*",
-      "accept-language": "id-ID,id;q=0.9,en;q=0.8",
-      "user-agent":
-        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/118.0 Safari/537.36",
-      "referer": `https://www.douyin.com/root/search/${encoded}?type=general`,
-      "cookie":
-        "s_v_web_id=verify_me5d6fih_IX6PCIGA_twP0_4zgA_8EqK_cyQRrxomnYdv;", // Optional cookie
-    };
+  await page.setUserAgent(
+    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36"
+  );
 
-    const { data } = await axios.get(url, { headers, httpsAgent: agent });
+  await page.goto(searchUrl, { waitUntil: "networkidle2" });
 
-    if (!data?.data) return { total: 0, result: [] };
+  // Tunggu hasil video muncul
+  await page.waitForSelector("div.video-feed-item, div.aweme-card", { timeout: 10000 }).catch(() => {});
 
-    const result = [];
+  const results = await page.evaluate(() => {
+    const videos = [];
+    const items = document.querySelectorAll("div.video-feed-item, div.aweme-card");
+    items.forEach((el) => {
+      const title = el.querySelector("a")?.innerText || "";
+      const url = el.querySelector("a")?.href || "";
+      const cover = el.querySelector("img")?.src || "";
+      const author = el.querySelector(".author-name")?.innerText || "";
 
-    for (const item of data.data) {
-      const aweme = item?.aweme_info;
-      if (!aweme) continue;
+      if (url) {
+        videos.push({ title, author, video_url: url, cover });
+      }
+    });
+    return videos;
+  });
 
-      result.push({
-        id: aweme.aweme_id,
-        desc: aweme.desc || "Tanpa deskripsi",
-        author: aweme.author?.nickname || "Tidak diketahui",
-        cover: aweme.video?.cover?.url_list?.[0],
-        play: aweme.video?.play_addr?.url_list?.[0],
-        music: {
-          title: aweme.music?.title || "-",
-          author: aweme.music?.author || "-",
-          url: aweme.music?.play_url?.url_list?.[0] || "",
-        },
-        stats: {
-          digg_count: aweme.statistics?.digg_count || 0,
-          share_count: aweme.statistics?.share_count || 0,
-          comment_count: aweme.statistics?.comment_count || 0,
-          play_count: aweme.statistics?.play_count || 0,
-        },
-      });
-    }
+  await browser.close();
 
-    return { total: result.length, result };
-  } catch (err) {
-    console.error("Douyin Fetch Error:", err.message);
-    throw new Error("Gagal mengambil data Douyin. Periksa koneksi atau struktur API-nya.");
-  }
+  return {
+    creator: "Z7:林企业",
+    status: true,
+    result: results,
+  };
 }
 
+// Contoh Express API route
 export default {
-  name: "Douyin",
-  desc: "Search Douyin (TikTok China) videos by keyword",
+  creator: "Z7:林企业",
+  name: "Douyin Search Puppeteer",
+  desc: "Search Douyin via web scraping (Puppeteer)",
   category: "Search",
   path: "/search/douyin?apikey=&q=",
+
   async run(req, res) {
     try {
       const { apikey, q } = req.query;
+      if (!apikey || !global.apikey?.includes(apikey))
+        return res.json({ status: false, error: "Apikey invalid" });
+      if (!q) return res.json({ status: false, error: "Query is required" });
 
-      if (!apikey || !global.apikey?.includes(apikey)) {
-        return res.status(403).json({ status: false, error: "Apikey invalid" });
-      }
-
-      if (!q) {
-        return res.status(400).json({
-          status: false,
-          error: "Parameter 'q' (keyword) wajib diisi. Contoh: /video/douyin?q=girl dance",
-        });
-      }
-
-      const data = await fetchDouyin(q);
-
-      res.status(200).json({
-        creator: "Z7:林企业",
-        status: true,
-        keyword: q,
-        total: data.total,
-        result: data.result,
-      });
-    } catch (err) {
-      res.status(500).json({ status: false, error: err.message });
+      const result = await douyinSearch(q);
+      res.status(200).json(result);
+    } catch (error) {
+      res.status(500).json({ status: false, error: error.message });
     }
   },
 };
