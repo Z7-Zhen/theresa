@@ -1,70 +1,130 @@
-// douyin-puppeteer.js
-import puppeteer from "puppeteer";
+// file: douyin.js
+import axios from "axios";
+import * as cheerio from "cheerio";
+import vm from "vm";
 
-export async function douyinSearch(query) {
-  if (!query) throw new Error("Query required");
+export async function douyin(q) {
+  try {
+    if (!q) throw new Error("Query required");
 
-  const searchUrl = `https://so.douyin.com/s?douyin_web_id=7570740926563485190&keyword=${encodeURIComponent(query)}&enter_method=web_search`;
+    const baseURL = "https://so.douyin.com/";
+    const defaultParams = {
+      search_entrance: "aweme",
+      enter_method: "normal_search",
+      innerWidth: "431",
+      innerHeight: "814",
+      reloadNavStart: String(Date.now()),
+      is_no_width_reload: "1",
+      keyword: q,
+    };
 
-  const browser = await puppeteer.launch({
-    headless: true, // set false kalau mau lihat browser
-    args: ["--no-sandbox", "--disable-setuid-sandbox"],
-  });
-  const page = await browser.newPage();
+    const cookies = {};
+    const api = axios.create({
+      baseURL,
+      headers: {
+        accept:
+          "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7",
+        "accept-language": "id-ID,id;q=0.9",
+        referer: baseURL,
+        "upgrade-insecure-requests": "1",
+        "user-agent":
+          "Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Mobile Safari/537.36",
+      },
+    });
 
-  await page.setUserAgent(
-    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36"
-  );
+    // Interceptor response untuk simpan cookie
+    api.interceptors.response.use((res) => {
+      const setCookies = res.headers["set-cookie"];
+      if (setCookies) {
+        setCookies.forEach((c) => {
+          const [name, value] = c.split(";")[0].split("=");
+          if (name && value) cookies[name] = value;
+        });
+      }
+      return res;
+    });
 
-  await page.goto(searchUrl, { waitUntil: "networkidle2" });
+    // Interceptor request untuk pakai cookie
+    api.interceptors.request.use((config) => {
+      if (Object.keys(cookies).length) {
+        config.headers["Cookie"] = Object.entries(cookies)
+          .map(([k, v]) => `${k}=${v}`)
+          .join("; ");
+      }
+      return config;
+    });
 
-  // Tunggu hasil video muncul
-  await page.waitForSelector("div.video-feed-item, div.aweme-card", { timeout: 10000 }).catch(() => {});
+    // Load halaman utama untuk inisialisasi cookie
+    await api.get("/");
 
-  const results = await page.evaluate(() => {
-    const videos = [];
-    const items = document.querySelectorAll("div.video-feed-item, div.aweme-card");
-    items.forEach((el) => {
-      const title = el.querySelector("a")?.innerText || "";
-      const url = el.querySelector("a")?.href || "";
-      const cover = el.querySelector("img")?.src || "";
-      const author = el.querySelector(".author-name")?.innerText || "";
+    // Panggil search
+    const res = await api.get("s", { params: defaultParams });
+    const $ = cheerio.load(res.data);
 
-      if (url) {
-        videos.push({ title, author, video_url: url, cover });
+    let scriptWithData = "";
+    $("script").each((_, el) => {
+      const text = $(el).html();
+      if (text.includes("let data =") && text.includes('"business_data":')) {
+        scriptWithData = text;
       }
     });
-    return videos;
-  });
 
-  await browser.close();
+    const match = scriptWithData.match(/let\s+data\s*=\s*(\{[\s\S]+?\});/);
+    if (!match) return [];
 
-  return {
-    creator: "Z7:林企业",
-    status: true,
-    result: results,
-  };
+    const sandbox = {};
+    vm.createContext(sandbox);
+    vm.runInContext(`data = ${match[1]}`, sandbox);
+
+    const awemeInfos = sandbox.data?.business_data
+      ?.map((entry) => entry?.data?.aweme_info)
+      .filter(Boolean);
+
+    if (!awemeInfos) return [];
+
+    // Format hasil
+    return awemeInfos.slice(0, 5).map((v, i) => ({
+      rank: i + 1,
+      description: v.desc || "Tanpa deskripsi",
+      author: v.author?.nickname || "Unknown",
+      likes: v.statistics?.digg_count || 0,
+      comments: v.statistics?.comment_count || 0,
+      video_url: `https://www.douyin.com/video/${v.aweme_id}`,
+      aweme_id: v.aweme_id,
+    }));
+  } catch (error) {
+    console.error("Error fetching Douyin data:", error.message);
+    return [];
+  }
 }
 
-// Contoh Express API route
 export default {
-  creator: "Z7:林企业",
-  name: "Douyin Search Puppeteer",
-  desc: "Search Douyin via web scraping (Puppeteer)",
+  name: "Douyin Search",
+  desc: "Search Douyin (抖音) videos",
   category: "Search",
   path: "/search/douyin?apikey=&q=",
-
   async run(req, res) {
     try {
       const { apikey, q } = req.query;
+
       if (!apikey || !global.apikey?.includes(apikey))
         return res.json({ status: false, error: "Apikey invalid" });
-      if (!q) return res.json({ status: false, error: "Query is required" });
 
-      const result = await douyinSearch(q);
-      res.status(200).json(result);
+      if (!q)
+        return res.json({ status: false, error: "Query is required" });
+
+      const results = await douyin(q);
+      res.status(200).json({
+        status: true,
+        creator: "Z7:林企业",
+        result: results,
+      });
     } catch (error) {
-      res.status(500).json({ status: false, error: error.message });
+      res.status(500).json({
+        status: false,
+        creator: "Z7:林企业",
+        message: error.message || "Gagal mengambil hasil pencarian Douyin",
+      });
     }
   },
 };
