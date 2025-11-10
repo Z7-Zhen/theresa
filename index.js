@@ -158,7 +158,7 @@ global.totalreq = 0;
 const settings = {
   creatorName: "Z7:林企业",
   apiTitle: "Theresa API's",
-  channelLink: "https://whatsapp.com/channel/0029VbBHTVqBKfiADKhkOh0Q",
+  channelLink: "https://whatsapp.com/channel/0029VbBt4432f3ENa8ULoM1J",
   githubLink: "https://github.com/Reyz2902",
   contactLink: "https://t.me/ReyzID12"
 };
