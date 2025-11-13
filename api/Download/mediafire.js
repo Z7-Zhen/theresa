@@ -1,65 +1,105 @@
+// file: mediafire.js
+import axios from "axios";
 import * as cheerio from "cheerio";
-import { basename, extname } from "path";
-import mime from "mime-types";
+import { lookup } from "mime-types";
 
 /**
- * Scraper Mediafire
- * @param {string} url - URL Mediafire
+ * 📥 Scraper MediaFire Downloader
+ * @param {string} url - Link MediaFire
  * @returns {Promise<Object>}
  */
-async function mediafire(url) {
-  const html = await (await fetch(url.trim())).text();
-  const $ = cheerio.load(html);
+export async function mediafire(url) {
+  if (!url || !url.includes("mediafire.com"))
+    throw new Error("Masukkan URL MediaFire yang valid.");
 
-  const title =
-    $("meta[property='og:title']").attr("content")?.trim() || "Unknown";
-  const size =
-    /Download\s*\(([\d.]+\s*[KMGT]?B)\)/i.exec($.html())?.[1] || "Unknown";
-  const dl =
-    $("a.popsok[href^='https://download']").attr("href")?.trim() ||
-    $("a.popsok:not([href^='javascript'])").attr("href")?.trim() ||
-    (() => {
-      throw new Error("Download URL not found.");
-    })();
+  try {
+    // Ambil halaman Mediafire via proxy bebas (hindari Cloudflare)
+    const { data } = await axios.get(
+      `https://api.nekolabs.web.id/px?url=${encodeURIComponent(url)}`
+    );
 
-  return {
-    name: title,
-    filename: basename(dl),
-    type: extname(dl),
-    size,
-    download: dl,
-    link: url.trim(),
-  };
+    const html = data?.result?.content;
+    if (!html) throw new Error("Gagal memuat halaman MediaFire.");
+
+    const $ = cheerio.load(html);
+
+    const filename =
+      $(".dl-btn-label").attr("title") ||
+      $("div.dl-info .filename").text().trim() ||
+      $("title").text().replace("MediaFire", "").trim() ||
+      "Unknown";
+
+    const ext = filename.split(".").pop().toLowerCase();
+    const mimetype = lookup(ext) || "application/octet-stream";
+
+    const filesize =
+      $(".dl-info ul.details li:nth-child(1) span").text().trim() || "Unknown";
+
+    const uploaded =
+      $(".dl-info ul.details li:nth-child(2) span").text().trim() || "Unknown";
+
+    const download_url = $("#downloadButton").attr("href");
+
+    if (!download_url) throw new Error("Gagal menemukan link unduhan.");
+
+    return {
+      status: true,
+      creator: "Z7:林企业",
+      result: {
+        filename,
+        filesize,
+        mimetype,
+        uploaded,
+        download_url,
+        source: url,
+      },
+    };
+  } catch (err) {
+    return {
+      status: false,
+      creator: "Z7:林企业",
+      message: err.message || "Gagal mengambil data dari MediaFire.",
+    };
+  }
 }
 
+// =============================
+// 🔹 Endpoint API tanpa API key
+// =============================
 export default {
-  name: "Mediafire",
-  desc: "Download file dari Mediafire",
+  name: "Mediafire Downloader",
+  desc: "Scraper untuk mengambil file dari tautan MediaFire.",
   category: "Downloader",
-  path: "/download/mediafire?apikey=&url=",
+  path: "download/mediafire?url=",
 
   async run(req, res) {
-    const { apikey, url } = req.query;
-
-    if (!apikey || !global.apikey.includes(apikey))
-      return res.json({ status: false, error: "Apikey invalid" });
-
-    if (!url)
-      return res.json({ status: false, error: "Url is required" });
-
     try {
-      const result = await mediafire(url);
-      const mimetype = mime.lookup(result.filename) || "application/octet-stream";
+      const { url } = req.query;
+      if (!url)
+        return res.status(400).json({
+          status: false,
+          message: "Masukkan parameter ?url= terlebih dahulu.",
+        });
 
-      res.status(200).json({
-        status: true,
-        result: {
-          ...result,
-          mimetype,
-        },
+      const result = await mediafire(url);
+      res.status(200).json(result);
+    } catch (error) {
+      res.status(500).json({
+        status: false,
+        creator: "Z7:林企业",
+        message: error.message || "Terjadi kesalahan internal server.",
       });
-    } catch (e) {
-      res.status(500).json({ status: false, error: e.message });
     }
   },
 };
+
+// =============================
+// 🧪 Jalankan langsung di terminal
+// =============================
+if (import.meta.url === `file://${process.argv[1]}`) {
+  const testURL =
+    process.argv[2] ||
+    "https://www.mediafire.com/file/xfk1u8yl4uqbizx/nulis.zip/file";
+  const result = await mediafire(testURL);
+  console.log(JSON.stringify(result, null, 2));
+}
