@@ -111,17 +111,14 @@ Mood: art-house winter film still — quiet, emotional, beautifully cold — pre
 /* === FITUR API === */
 export default {
   name: "Snowart AI Edit",
-  desc: "Edit gambar dengan GridPlus AI Url, prompt sudah otomatis",
+  desc: "Edit gambar dengan GridPlus AI (prompt otomatis snow theme)",
   category: "AI",
-  path: "/ai/lumiart?apikey=&image=",
+  path: "/ai/snowart?image=",
 
   async run(req, res) {
     try {
-      const { apikey, image } = req.query;
+      const { image } = req.query;
       const file = req.file;
-
-      if (!apikey || !global.apikey.includes(apikey))
-        return res.json({ status: false, error: "Apikey invalid" });
 
       // Ambil buffer dari file atau URL
       let buffer;
@@ -133,17 +130,18 @@ export default {
       } else {
         return res.json({
           status: false,
-          error: "Please upload image file or provide image URL",
+          error: "Please upload an image file or provide an image URL",
         });
       }
 
+      // Proses edit via GridPlus
       const grid = new GridPlus();
       const resultUrl = await grid.edit(buffer, DEFAULT_PROMPT);
 
       res.status(200).json({
         status: true,
         result: {
-          prompt: "[DEFAULT prompt applied]",
+          prompt: "[Snowart default prompt applied]",
           input: image || "[uploaded file]",
           output: resultUrl,
           source: "https://api.grid.plus/v1",

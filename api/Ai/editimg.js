@@ -89,17 +89,14 @@ class GridPlus {
 /* === FITUR API === */
 export default {
   name: "GridPlus AI Edit",
-  desc: "Edit gambar dengan prompt AI via GridPlus ( URL)",
+  desc: "Edit gambar dengan prompt AI via GridPlus",
   category: "AI",
-  path: "/ai/gridplus?apikey=&prompt=&image=",
+  path: "/ai/gridplus?prompt=&image=",
 
   async run(req, res) {
     try {
-      const { apikey, prompt, image } = req.query;
+      const { prompt, image } = req.query;
       const file = req.file;
-
-      if (!apikey || !global.apikey.includes(apikey))
-        return res.json({ status: false, error: "Apikey invalid" });
 
       if (!prompt)
         return res.json({ status: false, error: "Prompt is required" });

@@ -94,17 +94,14 @@ Create a vertical frame â€“ size equivalent to 1920x1080 pixels (high quality) â
 /* === FITUR API === */
 export default {
   name: "LumiArt AI Edit",
-  desc: "Edit gambar dengan GridPlus AI Url, prompt sudah otomatis",
+  desc: "Edit gambar dengan GridPlus AI (prompt otomatis)",
   category: "AI",
-  path: "/ai/lumiart?apikey=&image=",
+  path: "/ai/lumiart?image=",
 
   async run(req, res) {
     try {
-      const { apikey, image } = req.query;
+      const { image } = req.query;
       const file = req.file;
-
-      if (!apikey || !global.apikey.includes(apikey))
-        return res.json({ status: false, error: "Apikey invalid" });
 
       // Ambil buffer dari file atau URL
       let buffer;
@@ -120,6 +117,7 @@ export default {
         });
       }
 
+      // Proses edit via GridPlus
       const grid = new GridPlus();
       const resultUrl = await grid.edit(buffer, DEFAULT_PROMPT);
 

@@ -33,21 +33,17 @@ export async function topromptUrl(imageUrl) {
 }
 
 /**
- * 🔹 Route handler
- * Format: /ai/toprompt?apikey=&url=
+ * 🔹 Route handler tanpa API key
+ * Format: /ai/toprompt?url=
  */
 export default {
   name: "AI Image → Prompt (URL)",
-  desc: "Generate deskripsi prompt dari gambar URL (via imageprompt.org)",
+  desc: "Generate deskripsi prompt dari gambar URL (tanpa API key)",
   category: "AI",
-  path: "/ai/toprompt?apikey=&url=",
+  path: "/ai/toprompt?url=",
   async run(req, res) {
     try {
-      const { apikey, url } = req.query;
-
-      // 🔒 Validasi apikey
-      if (!global.apikey?.includes(apikey))
-        return res.json({ status: false, error: "Apikey invalid" });
+      const { url } = req.query;
 
       // 🔒 Validasi URL
       if (!url)
