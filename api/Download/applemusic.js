@@ -15,151 +15,152 @@ const axiosInstance = axios.create({
 });
 
 /* ============================
-   🧩 FUNGSI UTAMA
+   🧩 UTILITY
 =============================== */
 function encodeDownloadUrl(url) {
   return url ? url.replace(/ /g, "%20") : url;
 }
 
 function detectUrlType(url) {
+  if (!url) return null;
   if (url.includes("/song/")) return "song";
   if (url.includes("/album/") && url.includes("?i=")) return "song";
   if (url.includes("/album/") && !url.includes("?i=")) return "album";
   return "song";
 }
 
+/* ============================
+   🎵 FETCH LAGU/ALBUM
+=============================== */
 async function fetchAppleMusic(url) {
-  const urlType = detectUrlType(url);
-  return urlType === "album" ? downloadAlbum(url) : downloadSong(url);
+  if (!url) throw new Error("URL tidak boleh kosong.");
+
+  const type = detectUrlType(url);
+  if (!type) throw new Error("URL tidak valid atau tidak dikenali.");
+
+  return type === "album" ? downloadAlbum(url) : downloadSong(url);
 }
 
 /* ============================
    🎵 DOWNLOAD SONG
 =============================== */
 async function downloadSong(url) {
-  await axiosInstance.get("https://aaplmusicdownloader.com/ifCaptcha.php");
+  try {
+    await axiosInstance.get("https://aaplmusicdownloader.com/ifCaptcha.php");
 
-  const endpoint = url.includes("/song/")
-    ? "https://aaplmusicdownloader.com/api/song_url.php"
-    : "https://aaplmusicdownloader.com/api/applesearch.php";
+    const endpoint = url.includes("/song/")
+      ? "https://aaplmusicdownloader.com/api/song_url.php"
+      : "https://aaplmusicdownloader.com/api/applesearch.php";
 
-  const searchResponse = await axiosInstance.get(
-    `${endpoint}?url=${encodeURIComponent(url)}`,
-    {
-      headers: {
-        Accept: "application/json, text/javascript, */*; q=0.01",
-        "X-Requested-With": "XMLHttpRequest",
-        Referer: "https://aaplmusicdownloader.com/",
-      },
-    }
-  );
+    const searchResponse = await axiosInstance.get(
+      `${endpoint}?url=${encodeURIComponent(url)}`,
+      {
+        headers: {
+          Accept: "application/json, text/javascript, */*; q=0.01",
+          "X-Requested-With": "XMLHttpRequest",
+          Referer: "https://aaplmusicdownloader.com/",
+        },
+      }
+    );
 
-  const searchData = searchResponse.data;
+    const searchData = searchResponse.data || {};
+    if (!searchData.name) throw new Error("Data lagu tidak ditemukan.");
 
-  await axiosInstance.get("https://aaplmusicdownloader.com/song.php", {
-    headers: { Referer: "https://aaplmusicdownloader.com/" },
-  });
+    await axiosInstance.get("https://aaplmusicdownloader.com/song.php", {
+      headers: { Referer: "https://aaplmusicdownloader.com/" },
+    });
 
-  await axiosInstance.get("https://aaplmusicdownloader.com/ifCaptcha.php", {
-    headers: { Referer: "https://aaplmusicdownloader.com/song.php" },
-  });
+    const formData = `song_name=${encodeURIComponent(
+      searchData.name
+    )}&artist_name=${encodeURIComponent(
+      searchData.artist || "Unknown Artist"
+    )}&url=${encodeURIComponent(url)}&token=none&zip_download=false&quality=m4a`;
 
-  const formData = `song_name=${encodeURIComponent(
-    searchData.name
-  )}&artist_name=${encodeURIComponent(
-    searchData.artist
-  )}&url=${encodeURIComponent(
-    url
-  )}&token=none&zip_download=false&quality=m4a`;
+    const downloadResponse = await axiosInstance.post(
+      "https://aaplmusicdownloader.com/api/composer/swd.php",
+      formData,
+      {
+        headers: {
+          "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
+          Accept: "application/json, text/javascript, */*; q=0.01",
+          "X-Requested-With": "XMLHttpRequest",
+          Referer: "https://aaplmusicdownloader.com/song.php",
+        },
+      }
+    );
 
-  const downloadResponse = await axiosInstance.post(
-    "https://aaplmusicdownloader.com/api/composer/swd.php",
-    formData,
-    {
-      headers: {
-        "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
-        Accept: "application/json, text/javascript, */*; q=0.01",
-        "X-Requested-With": "XMLHttpRequest",
-        Referer: "https://aaplmusicdownloader.com/song.php",
-      },
-    }
-  );
+    const downloadData = downloadResponse.data || {};
 
-  const downloadData = downloadResponse.data;
-
-  return {
-    name: searchData.name,
-    album_name: searchData.albumname,
-    type: "song",
-    artist: searchData.artist,
-    thumbnail: searchData.thumb,
-    duration: searchData.duration,
-    url: encodeDownloadUrl(downloadData.dlink || downloadData.wmcode),
-  };
+    return {
+      name: searchData.name,
+      album_name: searchData.albumname || null,
+      type: "song",
+      artist: searchData.artist || null,
+      thumbnail: searchData.thumb || null,
+      duration: searchData.duration || null,
+      url: encodeDownloadUrl(downloadData.dlink || downloadData.wmcode),
+    };
+  } catch (err) {
+    throw new Error(`Gagal download lagu: ${err.message}`);
+  }
 }
 
 /* ============================
    💽 DOWNLOAD ALBUM
 =============================== */
 async function downloadAlbum(url) {
-  await axiosInstance.get("https://aaplmusicdownloader.com/ifCaptcha.php");
+  try {
+    await axiosInstance.get("https://aaplmusicdownloader.com/ifCaptcha.php");
 
-  const playlistResponse = await axiosInstance.get(
-    `https://aaplmusicdownloader.com/api/pl.php?url=${encodeURIComponent(
-      url
-    )}`,
-    {
-      headers: {
-        Accept: "application/json, text/javascript, */*; q=0.01",
-        "X-Requested-With": "XMLHttpRequest",
-        Referer: "https://aaplmusicdownloader.com/",
-      },
-    }
-  );
+    const playlistResponse = await axiosInstance.get(
+      `https://aaplmusicdownloader.com/api/pl.php?url=${encodeURIComponent(url)}`,
+      {
+        headers: {
+          Accept: "application/json, text/javascript, */*; q=0.01",
+          "X-Requested-With": "XMLHttpRequest",
+          Referer: "https://aaplmusicdownloader.com/",
+        },
+      }
+    );
 
-  const albumData = playlistResponse.data.album_details;
-  const firstSong = albumData[0];
+    const albumData = playlistResponse.data?.album_details || [];
+    if (!albumData.length) throw new Error("Album tidak ditemukan.");
 
-  await axiosInstance.get("https://aaplmusicdownloader.com/album.php", {
-    headers: { Referer: "https://aaplmusicdownloader.com/" },
-  });
+    const firstSong = albumData[0];
 
-  await axiosInstance.get("https://aaplmusicdownloader.com/ifCaptcha.php", {
-    headers: { Referer: "https://aaplmusicdownloader.com/album.php" },
-  });
+    const formData = `song_name=${encodeURIComponent(
+      firstSong.name
+    )}&artist_name=${encodeURIComponent(
+      (firstSong.artist || "").replace(/&amp;/g, "&")
+    )}&url=${encodeURIComponent(firstSong.link)}&token=na&zip_download=false&quality=m4a`;
 
-  const formData = `song_name=${encodeURIComponent(
-    firstSong.name
-  )}&artist_name=${encodeURIComponent(
-    firstSong.artist.replace(/&amp;/g, "&")
-  )}&url=${encodeURIComponent(
-    firstSong.link
-  )}&token=na&zip_download=false&quality=m4a`;
+    const downloadResponse = await axiosInstance.post(
+      "https://aaplmusicdownloader.com/api/composer/swd.php",
+      formData,
+      {
+        headers: {
+          "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
+          Accept: "application/json, text/javascript, */*; q=0.01",
+          "X-Requested-With": "XMLHttpRequest",
+          Referer: "https://aaplmusicdownloader.com/album.php",
+        },
+      }
+    );
 
-  const downloadResponse = await axiosInstance.post(
-    "https://aaplmusicdownloader.com/api/composer/swd.php",
-    formData,
-    {
-      headers: {
-        "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
-        Accept: "application/json, text/javascript, */*; q=0.01",
-        "X-Requested-With": "XMLHttpRequest",
-        Referer: "https://aaplmusicdownloader.com/album.php",
-      },
-    }
-  );
+    const result = downloadResponse.data || {};
 
-  const result = downloadResponse.data;
-
-  return {
-    name: firstSong.name,
-    album_name: firstSong.album,
-    type: "album",
-    artist: firstSong.artist.replace(/&amp;/g, "&"),
-    thumbnail: firstSong.thumb,
-    duration: firstSong.duration,
-    url: encodeDownloadUrl(result.dlink || result.wmcode),
-  };
+    return {
+      name: firstSong.name,
+      album_name: firstSong.album || null,
+      type: "album",
+      artist: (firstSong.artist || "").replace(/&amp;/g, "&"),
+      thumbnail: firstSong.thumb || null,
+      duration: firstSong.duration || null,
+      url: encodeDownloadUrl(result.dlink || result.wmcode),
+    };
+  } catch (err) {
+    throw new Error(`Gagal download album: ${err.message}`);
+  }
 }
 
 /* ============================
@@ -167,7 +168,7 @@ async function downloadAlbum(url) {
 =============================== */
 export default {
   name: "Apple Music Downloader",
-  desc: "Download lagu/album Apple Music tanpa API key",
+  desc: "Download lagu/album Apple Music",
   category: "Downloader",
   path: "/download/applemusic?url=",
 
