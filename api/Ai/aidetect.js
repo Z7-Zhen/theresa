@@ -46,8 +46,8 @@ async function analyzer({ code, url } = {}) {
 /* === FITUR API TANPA API KEY === */
 export default {
   name: "Code Analyzer",
-  desc: "Analisis source code via codedetector.io (tanpa API key)",
-  category: "Ai",
+  desc: "Analisis source code via codedetector.io",
+  category: "AI",
   path: "/ai/analyzer?url=&code=",
 
   async run(req, res) {
