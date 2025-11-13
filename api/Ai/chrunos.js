@@ -74,8 +74,6 @@ export default {
       res.status(200).json({
         status: true,
         creator: "Z7:林企业",
-        base: "https://chrunos.com",
-        link_gc: "https://chat.whatsapp.com/Gfs8vBXnCqG8sPFVgTiSIV?mode=wwt",
         input: text,
         output,
       });
