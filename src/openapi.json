@@ -16,7 +16,7 @@
     { "name": "Downloader" }
   ],
   "paths": {
-    "/image/ba": {
+  "/image/ba": {
       "get": {
         "summary": "Blue Archive",
         "description": "Blue Archive Random Images",
@@ -486,87 +486,52 @@
       }
     },
     "/search/soundcloud": {
-  "get": {
-    "summary": "SoundCloud Search",
-    "description": "Cari lagu atau audio di SoundCloud berdasarkan kata kunci",
-    "tags": ["Search"],
-    "parameters": [
-      {
-        "name": "q",
-        "in": "query",
-        "required": true,
-        "description": "Kata kunci pencarian SoundCloud",
-        "schema": { "type": "string", "minLength": 1 }
-      }
-    ],
-    "responses": {
-      "200": {
-        "description": "Hasil pencarian SoundCloud",
-        "content": {
-          "application/json": {
-            "schema": {
-              "type": "object",
-              "properties": {
-                "status": { "type": "boolean", "example": true },
-                "creator": { "type": "string", "example": "Z7:林企业" },
-                "result": {
-                  "type": "array",
-                  "items": {
-                    "type": "object",
-                    "properties": {
-                      "title": { "type": "string", "example": "Night Changes" },
-                      "artist": { "type": "string", "example": "One Direction" },
-                      "thumbnail": {
-                        "type": "string",
-                        "format": "uri",
-                        "example": "https://i1.sndcdn.com/artworks-xxx-t500x500.jpg"
-                      },
-                      "url": {
-                        "type": "string",
-                        "format": "uri",
-                        "example": "https://soundcloud.com/onedirection/night-changes"
+      "get": {
+        "summary": "SoundCloud Search",
+        "description": "Cari lagu SoundCloud",
+        "tags": ["Search"],
+        "parameters": [
+          {
+            "name": "q",
+            "in": "query",
+            "required": true,
+            "schema": { "type": "string", "minLength": 1 },
+            "description": "Keyword pencarian"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Hasil pencarian SoundCloud",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": { "type": "boolean" },
+                    "creator": { "type": "string" },
+                    "result": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "title": { "type": "string" },
+                          "artist": { "type": "string" },
+                          "thumbnail": { "type": "string" },
+                          "url": { "type": "string" }
+                        }
                       }
                     }
                   }
                 }
               }
             }
-          }
-        }
-      },
-      "400": {
-        "description": "Query tidak valid atau kosong",
-        "content": {
-          "application/json": {
-            "schema": {
-              "type": "object",
-              "properties": {
-                "status": { "type": "boolean", "example": false },
-                "error": { "type": "string", "example": "Query is required" }
-              }
-            }
-          }
-        }
-      },
-      "500": {
-        "description": "Terjadi kesalahan server",
-        "content": {
-          "application/json": {
-            "schema": {
-              "type": "object",
-              "properties": {
-                "status": { "type": "boolean", "example": false },
-                "error": {
-                  "type": "string",
-                  "example": "Gagal mengambil data SoundCloud"
-                }
-              }
-            }
+          },
+          "400": { "description": "Query tidak valid" },
+          "500": {
+            "description": "Terjadi kesalahan server"
           }
         }
       }
     }
   }
-    }
-  }
-
+}
