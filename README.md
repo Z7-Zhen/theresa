@@ -25,7 +25,7 @@ A modern, clean, and user-friendly interface for browsing and testing Falcon API
 
 1. Clone this repository to your web server:
    ```bash
-   git clone https://github.com/FlowFalcon/falcon-api-ui.git
+   git clone https://github.com/Z7-zhen/theresa.git
    ```
 
 2. Configure your API endpoints in `settings.json` (see Configuration section below)
@@ -37,36 +37,6 @@ A modern, clean, and user-friendly interface for browsing and testing Falcon API
 All API endpoints and categories are configured in the `settings.json` file. The structure is as follows:
 
 ```json
-{
-  "name": "Falcon-Api",
-  "version": "v1.2",
-  "description": "Simple and easy to use API.",
-  "bannerImage": "/src/banner.jpg",
-  "header": {
-    "status": "Online!"
-  },
-  "apiSettings": {
-    "creator": "FlowFalcon", 
-    "apikey": ["falcon-api"]
-  },
-  "categories": [
-    {
-      "name": "Category Name",
-      "image": "/api/placeholder/800/200",
-      "items": [
-        {
-          "name": "Endpoint Name",
-          "desc": "Endpoint description",
-          "path": "/api/endpoint?param=",
-          "status": "ready", // Can be "ready", "error", or "update"
-          "params": {
-            "param": "Description of the parameter"
-          }
-        }
-      ]
-    }
-  ]
-}
 ```
 
 ### Adding a New Endpoint
