@@ -25,10 +25,7 @@ async function tiktokTikWM(url) {
 
 module.exports = function (app) {
   app.get("/download/tiktok", async (req, res) => {
-    const { apikey, url } = req.query;
-
-    if (!apikey || !global.apikey.includes(apikey))
-      return res.status(401).json({ status: false, error: "Apikey invalid" });
+    const { url } = req.query;
 
     if (!url)
       return res.status(400).json({ status: false, error: "Url is required" });
