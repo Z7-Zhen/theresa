@@ -187,7 +187,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         await loadNotifications(); 
         
         try {
-            const response = await fetch('/src/settings.json');
+            const response = await fetch('/src/openapi.json');
             if (!response.ok) throw new Error(`Gagal memuat pengaturan: ${response.status}`);
             settings = await response.json();
             populatePageContent();

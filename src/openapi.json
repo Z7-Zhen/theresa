@@ -1,0 +1,758 @@
+{
+    "openapi": "1.0.0",
+    "info": {
+        "title": "Theresa",
+        "author": "Z7:林企业",
+        "version": "v1.0.0",
+        "description": "Simple and easy to use API."
+    },
+    "servers": [
+        {
+            "url": "/"
+        }
+    ],
+    "tags": [
+        {
+            "name": "Image"
+        },
+        {
+            "name": "Search"
+        },
+        {
+            "name": "Info"
+        },
+        {
+            "name": "Downloader"
+        }
+    ],
+    "paths": {
+        "/image/ba": {
+            "get": {
+                "summary": "Blue Archive",
+                "description": "Blue Archive Random Images",
+                "tags": [
+                    "Image"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Respon berhasil",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "status": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "images": {
+                                            "type": "array",
+                                            "items": {
+                                                "type": "string",
+                                                "format": "uri"
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Gagal memproses request"
+                    }
+                }
+            }
+        },
+        "/info/manwha": {
+            "get": {
+                "summary": "Manwha Detail",
+                "description": "Ambil detail komik Webtoons dari URL",
+                "tags": [
+                    "Info"
+                ],
+                "parameters": [
+                    {
+                        "name": "url",
+                        "in": "query",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uri"
+                        },
+                        "description": "URL halaman Webtoons/Manwha"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Respon berhasil",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "status": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "result": {
+                                            "type": "object"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Gagal memproses request"
+                    }
+                }
+            }
+        },
+        "/info/growagarden": {
+            "get": {
+                "summary": "Grow A Garden Info",
+                "description": "Menampilkan data terbaru event Grow a Garden (GamersBerg) tanpa API key",
+                "tags": [
+                    "Info"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Data berhasil diambil",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "status": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "creator": {
+                                            "type": "string",
+                                            "example": "Z7:林企业"
+                                        },
+                                        "result": {
+                                            "type": "object",
+                                            "properties": {
+                                                "updated": {
+                                                    "type": "string",
+                                                    "format": "date-time"
+                                                },
+                                                "user": {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "playerName": {
+                                                            "type": "string",
+                                                            "example": "Player123"
+                                                        },
+                                                        "userId": {
+                                                            "type": "string",
+                                                            "example": "987654321"
+                                                        },
+                                                        "sessionId": {
+                                                            "type": "string",
+                                                            "example": "abc123xyz"
+                                                        }
+                                                    }
+                                                },
+                                                "garden": {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "updateNumber": {
+                                                            "type": "integer",
+                                                            "example": 5
+                                                        },
+                                                        "timestamp": {
+                                                            "type": "string",
+                                                            "example": "2025-11-16T12:00:00Z"
+                                                        },
+                                                        "weather": {
+                                                            "type": "string",
+                                                            "example": "Sunny"
+                                                        },
+                                                        "seeds": {
+                                                            "type": "array",
+                                                            "items": {
+                                                                "type": "object",
+                                                                "properties": {
+                                                                    "name": {
+                                                                        "type": "string",
+                                                                        "example": "Carrot"
+                                                                    },
+                                                                    "quantity": {
+                                                                        "type": "integer",
+                                                                        "example": 10
+                                                                    },
+                                                                    "image": {
+                                                                        "type": "string",
+                                                                        "format": "uri"
+                                                                    }
+                                                                }
+                                                            }
+                                                        },
+                                                        "gear": {
+                                                            "type": "array",
+                                                            "items": {
+                                                                "type": "object",
+                                                                "properties": {
+                                                                    "name": {
+                                                                        "type": "string",
+                                                                        "example": "Shovel"
+                                                                    },
+                                                                    "quantity": {
+                                                                        "type": "integer",
+                                                                        "example": 1
+                                                                    },
+                                                                    "image": {
+                                                                        "type": "string",
+                                                                        "format": "uri"
+                                                                    }
+                                                                }
+                                                            }
+                                                        },
+                                                        "cosmetic": {
+                                                            "type": "array",
+                                                            "items": {
+                                                                "type": "object",
+                                                                "properties": {
+                                                                    "name": {
+                                                                        "type": "string",
+                                                                        "example": "Hat"
+                                                                    },
+                                                                    "quantity": {
+                                                                        "type": "integer",
+                                                                        "example": 1
+                                                                    },
+                                                                    "image": {
+                                                                        "type": "string",
+                                                                        "format": "uri"
+                                                                    }
+                                                                }
+                                                            }
+                                                        },
+                                                        "eggs": {
+                                                            "type": "array",
+                                                            "items": {
+                                                                "type": "object",
+                                                                "properties": {
+                                                                    "name": {
+                                                                        "type": "string",
+                                                                        "example": "Golden Egg"
+                                                                    },
+                                                                    "quantity": {
+                                                                        "type": "integer",
+                                                                        "example": 2
+                                                                    },
+                                                                    "image": {
+                                                                        "type": "string",
+                                                                        "format": "uri"
+                                                                    }
+                                                                }
+                                                            }
+                                                        },
+                                                        "event": {
+                                                            "type": "object"
+                                                        },
+                                                        "honeyevent": {
+                                                            "type": "object"
+                                                        },
+                                                        "nightevent": {
+                                                            "type": "object"
+                                                        },
+                                                        "traveling": {
+                                                            "type": "object"
+                                                        }
+                                                    }
+                                                },
+                                                "meta": {
+                                                    "type": "object"
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Terjadi kesalahan server",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "status": {
+                                            "type": "boolean",
+                                            "example": false
+                                        },
+                                        "creator": {
+                                            "type": "string",
+                                            "example": "Z7:林企业"
+                                        },
+                                        "error": {
+                                            "type": "string",
+                                            "example": "Gagal mengambil data Grow a Garden"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/download/soundcloud": {
+            "get": {
+                "summary": "SoundCloud Downloader",
+                "description": "Download lagu dari SoundCloud",
+                "tags": [
+                    "Downloader"
+                ],
+                "parameters": [
+                    {
+                        "name": "url",
+                        "in": "query",
+                        "required": true,
+                        "description": "URL lagu SoundCloud yang ingin diunduh",
+                        "schema": {
+                            "type": "string",
+                            "format": "uri"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Download berhasil",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "status": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "creator": {
+                                            "type": "string",
+                                            "example": "Z7:林企业"
+                                        },
+                                        "result": {
+                                            "type": "object"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "URL tidak valid atau kosong"
+                    },
+                    "500": {
+                        "description": "Gagal memproses request"
+                    }
+                }
+            }
+        },
+        "/search/youtube": {
+            "get": {
+                "summary": "YouTube Search",
+                "description": "Video search",
+                "tags": [
+                    "Search"
+                ],
+                "parameters": [
+                    {
+                        "name": "q",
+                        "in": "query",
+                        "required": true,
+                        "description": "Search query",
+                        "schema": {
+                            "type": "string",
+                            "minLength": 1
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Hasil pencarian YouTube",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Query tidak valid"
+                    },
+                    "500": {
+                        "description": "Gagal memproses request"
+                    }
+                }
+            }
+        },
+        "/search/bstation": {
+            "get": {
+                "summary": "Bilibili Search",
+                "description": "Cari video di Bilibili berdasarkan query",
+                "tags": [
+                    "Search"
+                ],
+                "parameters": [
+                    {
+                        "name": "q",
+                        "in": "query",
+                        "required": true,
+                        "description": "Kata kunci pencarian",
+                        "schema": {
+                            "type": "string",
+                            "minLength": 1
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Hasil pencarian berhasil",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Query tidak valid atau kosong"
+                    },
+                    "500": {
+                        "description": "Gagal memproses request"
+                    }
+                }
+            }
+        },
+        "/search/douyin": {
+            "get": {
+                "summary": "Douyin Search",
+                "description": "Cari video Douyin berdasarkan kata kunci",
+                "tags": [
+                    "Search"
+                ],
+                "parameters": [
+                    {
+                        "name": "q",
+                        "in": "query",
+                        "required": true,
+                        "description": "Kata kunci pencarian Douyin",
+                        "schema": {
+                            "type": "string",
+                            "minLength": 1
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Hasil pencarian Douyin",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Query tidak valid atau kosong",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Terjadi kesalahan server",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/search/loker": {
+            "get": {
+                "summary": "JobStreet Loker Finder",
+                "description": "Cari lowongan pekerjaan berdasarkan kata kunci dan kota",
+                "tags": [
+                    "Search"
+                ],
+                "parameters": [
+                    {
+                        "name": "pekerjaan",
+                        "in": "query",
+                        "required": true,
+                        "description": "Kata kunci pekerjaan",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "kota",
+                        "in": "query",
+                        "required": true,
+                        "description": "Lokasi / kota",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "jumlah",
+                        "in": "query",
+                        "required": false,
+                        "description": "Jumlah hasil (default 5)",
+                        "schema": {
+                            "type": "integer",
+                            "default": 5
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Respon berhasil",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "status": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "creator": {
+                                            "type": "string",
+                                            "example": "Z7:林企业"
+                                        },
+                                        "result": {
+                                            "type": "object",
+                                            "properties": {
+                                                "query": {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "pekerjaan": {
+                                                            "type": "string",
+                                                            "example": "Barista"
+                                                        },
+                                                        "kota": {
+                                                            "type": "string",
+                                                            "example": "Bandung"
+                                                        },
+                                                        "jumlah": {
+                                                            "type": "integer",
+                                                            "example": 5
+                                                        }
+                                                    }
+                                                },
+                                                "total": {
+                                                    "type": "integer",
+                                                    "example": 5
+                                                },
+                                                "jobs": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "type": "object",
+                                                        "properties": {
+                                                            "title": {
+                                                                "type": "string",
+                                                                "example": "Barista"
+                                                            },
+                                                            "company": {
+                                                                "type": "string",
+                                                                "example": "Starbucks"
+                                                            },
+                                                            "location": {
+                                                                "type": "string",
+                                                                "example": "Bandung"
+                                                            },
+                                                            "date": {
+                                                                "type": "string",
+                                                                "example": "16 Nov 2025"
+                                                            },
+                                                            "salary": {
+                                                                "type": "string",
+                                                                "example": "Tidak dicantumkan"
+                                                            },
+                                                            "description": {
+                                                                "type": "string",
+                                                                "example": "Job teaser"
+                                                            },
+                                                            "logo": {
+                                                                "type": "string",
+                                                                "format": "uri"
+                                                            },
+                                                            "link": {
+                                                                "type": "string",
+                                                                "format": "uri"
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Gagal memproses request",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "status": {
+                                            "type": "boolean",
+                                            "example": false
+                                        },
+                                        "creator": {
+                                            "type": "string",
+                                            "example": "Z7:林企业"
+                                        },
+                                        "error": {
+                                            "type": "string",
+                                            "example": "Tidak ada lowongan ditemukan"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/search/tiktok": {
+            "get": {
+                "summary": "Tiktok Search",
+                "description": "Cari video TikTok berdasarkan kata kunci",
+                "tags": [
+                    "Search"
+                ],
+                "parameters": [
+                    {
+                        "name": "q",
+                        "in": "query",
+                        "required": true,
+                        "description": "Kata kunci pencarian TikTok",
+                        "schema": {
+                            "type": "string",
+                            "minLength": 1
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Hasil pencarian TikTok",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "status": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "result": {
+                                            "type": "array",
+                                            "items": {
+                                                "type": "object",
+                                                "properties": {
+                                                    "id": {
+                                                        "type": "string"
+                                                    },
+                                                    "desc": {
+                                                        "type": "string"
+                                                    },
+                                                    "play": {
+                                                        "type": "string",
+                                                        "format": "uri"
+                                                    },
+                                                    "wmplay": {
+                                                        "type": "string",
+                                                        "format": "uri"
+                                                    },
+                                                    "music": {
+                                                        "type": "string",
+                                                        "format": "uri"
+                                                    },
+                                                    "cover": {
+                                                        "type": "string",
+                                                        "format": "uri"
+                                                    },
+                                                    "avatar": {
+                                                        "type": "string",
+                                                        "format": "uri"
+                                                    },
+                                                    "authorName": {
+                                                        "type": "string"
+                                                    },
+                                                    "authorId": {
+                                                        "type": "string"
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Query tidak valid atau kosong",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "status": {
+                                            "type": "boolean",
+                                            "example": false
+                                        },
+                                        "error": {
+                                            "type": "string",
+                                            "example": "Query is required"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Terjadi kesalahan server",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "status": {
+                                            "type": "boolean",
+                                            "example": false
+                                        },
+                                        "error": {
+                                            "type": "string",
+                                            "example": "Server error message"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
