@@ -4,12 +4,12 @@ const fs = require('fs');
 const cors = require('cors');
 const path = require('path');
 const { Client, GatewayIntentBits, EmbedBuilder } = require('discord.js');
-
+require('dotenv').config();
 const app = express();
 const PORT = process.env.PORT || 4000;
 
 // ===== Discord Bot Settings =====
-const DISCORD_BOT_TOKEN = 'MTQzMTE4NDc5NDQ0MzU4MzU5OA.G_B0gl.0eqzmixSgX57c9onFnD1uAAGoxgWNFtpFPgeFw';
+const DISCORD_BOT_TOKEN = process.env.DISCORD_BOT_TOKEN
 const DISCORD_CHANNEL_ID = '1430590323893080237';
 // ===== Setup Discord Bot =====
 const discordClient = new Client({
