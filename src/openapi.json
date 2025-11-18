@@ -10,12 +10,107 @@
     { "url": "/" }
   ],
   "tags": [
+    { "name": "Anime" },
     { "name": "Downloader" },
     { "name": "Image" },
     { "name": "Info" },
-    { "name": "Search" }
+    { "name": "Search" },
+    { "name": "Tools" }
   ],
   "paths": {
+  "/anime/identify": {
+  "get": {
+    "summary": "Identify Anime by URL",
+    "description": "Mendeteksi anime, karakter, dan referensi dari URL gambar anime",
+    "tags": ["Anime"],
+    "parameters": [
+      {
+        "name": "url",
+        "in": "query",
+        "required": true,
+        "description": "URL gambar anime yang akan dianalisis",
+        "schema": {
+          "type": "string",
+          "format": "uri",
+          "example": "https://example.com/anime.jpg"
+        }
+      }
+    ],
+    "responses": {
+      "200": {
+        "description": "Respon berhasil",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "anime": {
+                  "type": "object",
+                  "properties": {
+                    "title": { "type": "string", "example": "Blue Archive" },
+                    "synopsis": { "type": "string", "example": "Cerita tentang akademi unik..." },
+                    "genres": {
+                      "type": "array",
+                      "items": { "type": "string" },
+                      "example": ["Action", "Comedy"]
+                    },
+                    "studio": { "type": "string", "example": "Nekotoro Studio" },
+                    "premiered": { "type": "string", "example": "2021-04-01" }
+                  }
+                },
+                "character": {
+                  "type": "object",
+                  "properties": {
+                    "name": { "type": "string", "example": "Shiroko" },
+                    "description": { "type": "string", "example": "Karakter dengan kepribadian ceria..." }
+                  }
+                },
+                "references": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "site": { "type": "string", "example": "MyAnimeList" },
+                      "url": { "type": "string", "example": "https://myanimelist.net/anime/12345" }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "400": {
+        "description": "Query parameter 'url' tidak dikirim",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "error": { "type": "boolean", "example": true },
+                "message": { "type": "string", "example": "Query parameter 'url' is required" }
+              }
+            }
+          }
+        }
+      },
+      "500": {
+        "description": "Gagal memproses request",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "error": { "type": "boolean", "example": true },
+                "message": { "type": "string", "example": "Error: gagal mengambil data" }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+},
   "/image/ba": {
       "get": {
         "summary": "Blue Archive",
@@ -153,6 +248,156 @@
         }
       }
     },
+    "/info/jadwalbola": {
+  "get": {
+    "summary": "Jadwal Sepakbola",
+    "description": "Mendapatkan jadwal sepakbola terbaru",
+    "tags": ["Info"],
+    "responses": {
+      "200": {
+        "description": "Respon berhasil",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "status": { "type": "boolean", "example": true },
+                "data": {
+                  "type": "array",
+                  "items": { "type": "string", "example": "Barcelona - Real Madrid - 20:00" }
+                }
+              }
+            }
+          }
+        }
+      },
+      "404": {
+        "description": "Tidak ada jadwal ditemukan",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "status": { "type": "boolean", "example": false },
+                "data": {
+                  "type": "array",
+                  "items": { "type": "string" }
+                },
+                "message": { "type": "string", "example": "Tidak ada hasil ditemukan" }
+              }
+            }
+          }
+        }
+      },
+      "500": {
+        "description": "Gagal memproses request",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "status": { "type": "boolean", "example": false },
+                "data": {
+                  "type": "array",
+                  "items": { "type": "string" }
+                },
+                "message": { "type": "string", "example": "Error: gagal mengambil data" }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+},
+"/info/kuranime": {
+  "get": {
+    "summary": "Get Anime Detail by URL",
+    "description": "Mengambil detail anime, karakter, dan daftar episode dari URL anime Kuramanime",
+    "tags": ["Info"],
+    "parameters": [
+      {
+        "name": "url",
+        "in": "query",
+        "required": true,
+        "description": "URL halaman anime yang ingin diambil detailnya",
+        "schema": {
+          "type": "string",
+          "format": "uri",
+          "example": "https://v8.kuramanime.tel/anime/4080/watashi-wo-tabetai-hitodenashi"
+        }
+      }
+    ],
+    "responses": {
+      "200": {
+        "description": "Respon berhasil",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "title": { "type": "string", "example": "Watashi wo Tabetai Hitodenashi" },
+                "alternative_titles": { "type": "string", "example": "Alternative Title Here" },
+                "synopsis": { "type": "string", "example": "Cerita tentang seorang karakter..." },
+                "image": { "type": "string", "format": "uri", "example": "https://kuramanime.example/image.jpg" },
+                "rating": { "type": "string", "example": "8.5" },
+                "quality": { "type": "string", "example": "HD" },
+                "type": { "type": "string", "example": "TV" },
+                "total_episodes": { "type": "string", "example": "12" },
+                "status": { "type": "string", "example": "Completed" },
+                "airing_period": { "type": "string", "example": "2021-04-01 to 2021-06-24" },
+                "season": { "type": "string", "example": "Spring 2021" },
+                "duration": { "type": "string", "example": "24 min per ep" },
+                "genres": { "type": "string", "example": "Action, Comedy" },
+                "studio": { "type": "string", "example": "Nekotoro Studio" },
+                "episodes": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "episode_number": { "type": "integer", "example": 1 },
+                      "episode_text": { "type": "string", "example": "Episode 1" },
+                      "episode_url": { "type": "string", "format": "uri", "example": "/episode/1" },
+                      "is_new": { "type": "boolean", "example": true }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "400": {
+        "description": "Query parameter 'url' tidak dikirim",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "error": { "type": "boolean", "example": true },
+                "message": { "type": "string", "example": "Query parameter 'url' is required" }
+              }
+            }
+          }
+        }
+      },
+      "500": {
+        "description": "Gagal memproses request",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "error": { "type": "boolean", "example": true },
+                "message": { "type": "string", "example": "Gagal mengambil data anime" }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+},
     "/info/manwha": {
       "get": {
         "summary": "Manwha Detail",
@@ -408,6 +653,82 @@
     }
   }
 },
+  "/download/terabox": {
+    "get": {
+      "summary": "Download file from Terabox",
+      "description": "Mengambil data download dari link Terabox. Bisa mengembalikan data mentah atau diparse.",
+      "tags": ["Downloader"],
+      "parameters": [
+        {
+          "name": "url",
+          "in": "query",
+          "required": true,
+          "description": "Link Terabox yang ingin didownload",
+          "schema": {
+            "type": "string",
+            "format": "uri",
+            "example": "https://terasharelink.com/s/1KKit71VEXZXfI3WnN4_f7Q"
+          }
+        },
+        {
+          "name": "parse",
+          "in": "query",
+          "required": false,
+          "description": "Jika true, hasil akan diparse dan key diubah menjadi aman",
+          "schema": {
+            "type": "boolean",
+            "example": true
+          }
+        }
+      ],
+      "responses": {
+        "200": {
+          "description": "Respon berhasil",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "example": {
+                  "file_name": "Minecraft_1.20.1.exe",
+                  "size": "200MB",
+                  "url": "https://terabox.com/download/file/abcdefg",
+                  "thumb": "https://terabox.com/thumb/abcdefg.png"
+                }
+              }
+            }
+          }
+        },
+        "400": {
+          "description": "Query parameter 'url' tidak dikirim",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "error": { "type": "boolean", "example": true },
+                  "message": { "type": "string", "example": "Query parameter 'url' is required" }
+                }
+              }
+            }
+          }
+        },
+        "500": {
+          "description": "Gagal memproses request",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "error": { "type": "boolean", "example": true },
+                  "message": { "type": "string", "example": "Gagal mendapatkan nonce" }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
     "/search/alkitab": {
   "get": {
     "summary": "Alkitab Search",
@@ -652,6 +973,73 @@
       },
       "400": { "description": "Query tidak disertakan" },
       "500": { "description": "Gagal memproses request" }
+    }
+  }
+},
+"/search/kuranime": {
+  "get": {
+    "summary": "Search Anime by Query",
+    "description": "Mencari daftar anime dari Kuramanime berdasarkan kata kunci pencarian",
+    "tags": [ "Search"],
+    "parameters": [
+      {
+        "name": "q",
+        "in": "query",
+        "required": true,
+        "description": "Kata kunci pencarian anime",
+        "schema": {
+          "type": "string",
+          "example": "Naruto"
+        }
+      }
+    ],
+    "responses": {
+      "200": {
+        "description": "Respon berhasil, daftar anime ditemukan",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "title": { "type": "string", "example": "Naruto" },
+                  "thumbnail": { "type": "string", "format": "uri", "example": "https://kuramanime.example/thumbnail.jpg" },
+                  "url": { "type": "string", "format": "uri", "example": "https://v8.kuramanime.tel/anime/20/naruto" }
+                }
+              }
+            }
+          }
+        }
+      },
+      "400": {
+        "description": "Query parameter 'q' tidak dikirim",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "error": { "type": "boolean", "example": true },
+                "message": { "type": "string", "example": "Query parameter 'q' is required" }
+              }
+            }
+          }
+        }
+      },
+      "500": {
+        "description": "Gagal memproses request",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "error": { "type": "boolean", "example": true },
+                "message": { "type": "string", "example": "Gagal mengambil data dari Kuramanime" }
+              }
+            }
+          }
+        }
+      }
     }
   }
 },
@@ -1078,6 +1466,74 @@
         }
       }
     },
+  "/search/terabox": {
+    "get": {
+      "summary": "Search files on Terabox by query",
+      "description": "Mencari file di Terabox berdasarkan query pencarian",
+      "tags": ["Search"],
+      "parameters": [
+        {
+          "name": "q",
+          "in": "query",
+          "required": true,
+          "description": "Query pencarian untuk Terabox",
+          "schema": {
+            "type": "string",
+            "example": "minecraft"
+          }
+        }
+      ],
+      "responses": {
+        "200": {
+          "description": "Respon berhasil",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "no": { "type": "integer", "example": 1 },
+                    "title": { "type": "string", "example": "Minecraft Server.zip" },
+                    "url": { "type": "string", "example": "https://terabox.com/file/abcdef" },
+                    "thumb": { "type": "string", "example": "https://terabox.com/thumb/abcdef.jpg" }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "400": {
+          "description": "Query parameter 'q' tidak dikirim",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "error": { "type": "boolean", "example": true },
+                  "message": { "type": "string", "example": "Query parameter 'q' is required" }
+                }
+              }
+            }
+          }
+        },
+        "500": {
+          "description": "Gagal memproses request",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "error": { "type": "boolean", "example": true },
+                  "message": { "type": "string", "example": "Error: gagal mengambil data dari Terabox" }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
      "/search/youtube": {
       "get": {
         "summary": "YouTube Search",
@@ -1105,6 +1561,160 @@
           "500": { "description": "Gagal memproses request" }
         }
       }
+    },
+  "/stalk/twitter": {
+    "get": {
+      "summary": "Stalk Twitter by Username",
+      "description": "Mengambil data profil dan tweet terbaru dari akun Twitter berdasarkan username.",
+      "tags": ["Stalk", "Twitter"],
+      "parameters": [
+        {
+          "name": "username",
+          "in": "query",
+          "required": true,
+          "description": "Username Twitter yang ingin diambil datanya",
+          "schema": {
+            "type": "string",
+            "example": "Ronaldo"
+          }
+        }
+      ],
+      "responses": {
+        "200": {
+          "description": "Respon berhasil",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "example": {
+                  "profile": {
+                    "restId": "1234567890",
+                    "name": "Cristiano Ronaldo",
+                    "username": "Ronaldo",
+                    "bio": "Footballer | Juventus 🇵🇹",
+                    "location": "Turin, Italy",
+                    "url": "https://t.co/example",
+                    "followersCount": 125000000,
+                    "followingCount": 500,
+                    "tweetCount": 10000,
+                    "createdAt": "2009-01-01T00:00:00.000Z",
+                    "verified": true,
+                    "profileImageUrl": "https://pbs.twimg.com/profile_images/example.jpg"
+                  },
+                  "tweets": [
+                    {
+                      "id": "1570000000000000000",
+                      "text": "Training hard for the next match! 💪⚽",
+                      "createdAt": "2025-11-18T10:00:00.000Z",
+                      "retweetCount": 1200,
+                      "likeCount": 45000,
+                      "replyCount": 300,
+                      "quoteCount": 50,
+                      "media": [
+                        {
+                          "type": "photo",
+                          "url": "https://pbs.twimg.com/media/example.jpg"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        },
+        "400": {
+          "description": "Query parameter 'username' tidak dikirim",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "error": { "type": "boolean", "example": true },
+                  "message": { "type": "string", "example": "Query parameter 'username' is required" }
+                }
+              }
+            }
+          }
+        },
+        "500": {
+          "description": "Gagal memproses request",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "error": { "type": "boolean", "example": true },
+                  "message": { "type": "string", "example": "Gagal mengambil data Twitter" }
+                }
+              }
+            }
+          }
+        }
+      }
     }
+  },
+    "/tools/removebg": {
+  "get": {
+    "summary": "Remove Background from Image URL",
+    "description": "Menghapus background dari gambar menggunakan URL",
+    "tags": [ "Tools"],
+    "parameters": [
+      {
+        "name": "url",
+        "in": "query",
+        "required": true,
+        "description": "URL gambar yang background-nya akan dihapus",
+        "schema": {
+          "type": "string",
+          "format": "uri",
+          "example": "https://files.catbox.moe/z6ulpc.jpg"
+        }
+      }
+    ],
+    "responses": {
+      "200": {
+        "description": "Respon berhasil",
+        "content": {
+          "image/png": {
+            "schema": {
+              "type": "string",
+              "format": "binary",
+              "description": "File PNG hasil remove background"
+            }
+          }
+        }
+      },
+      "400": {
+        "description": "Query parameter 'url' tidak dikirim",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "error": { "type": "boolean", "example": true },
+                "message": { "type": "string", "example": "Query parameter 'url' is required" }
+              }
+            }
+          }
+        }
+      },
+      "500": {
+        "description": "Gagal memproses request",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "error": { "type": "boolean", "example": true },
+                "message": { "type": "string", "example": "Error: gagal menghapus background" }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
   }
 }
