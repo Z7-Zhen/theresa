@@ -5,7 +5,12 @@ const path = require("path");
 
 module.exports = function(app) {
     async function removeBackgroundFromUrl(imageUrl) {
-        const tempFile = path.join(__dirname, "temp_download.jpg");
+        // Tentukan folder tmp khusus
+        const tmpDir = path.join(__dirname, "tmp");
+        fs.mkdirSync(tmpDir, { recursive: true }); // otomatis buat jika belum ada
+
+        const tempFile = path.join(tmpDir, "temp_download.jpg");
+
         // Download image sementara
         const response = await axios.get(imageUrl, { responseType: "arraybuffer" });
         fs.writeFileSync(tempFile, response.data);
@@ -21,7 +26,7 @@ module.exports = function(app) {
             timeout: 60000
         });
 
-        // Hapus file sementara download
+        // Hapus file sementara
         fs.unlinkSync(tempFile);
 
         return res.data; // Mengembalikan buffer PNG
