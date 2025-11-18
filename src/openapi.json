@@ -10,14 +10,93 @@
     { "url": "/" }
   ],
   "tags": [
+    { "name": "AI" },
     { "name": "Anime" },
     { "name": "Downloader" },
     { "name": "Image" },
     { "name": "Info" },
+    { "name": "orderkouta" },
     { "name": "Search" },
     { "name": "Tools" }
   ],
   "paths": {
+    "/ai/copilot": {
+  "get": {
+    "summary": "Copilot Chat",
+    "description": "Kirim pertanyaan ke Copilot Microsoft dan dapatkan jawaban beserta referensi/citations",
+    "tags": ["AI"],
+    "parameters": [
+      {
+        "name": "message",
+        "in": "query",
+        "required": true,
+        "description": "Pesan atau pertanyaan yang ingin dikirim ke Copilot",
+        "schema": { "type": "string" }
+      },
+      {
+        "name": "model",
+        "in": "query",
+        "required": false,
+        "description": "Model Copilot yang digunakan (default: 'default', opsional: 'think-deeper', 'gpt-5')",
+        "schema": { "type": "string", "enum": ["default", "think-deeper", "gpt-5"], "default": "default" }
+      }
+    ],
+    "responses": {
+      "200": {
+        "description": "Berhasil mendapatkan jawaban dari Copilot",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "text": { "type": "string", "example": "Berikut adalah berita terbaru dari Indonesia..." },
+                "citations": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "title": { "type": "string", "example": "Detik News" },
+                      "icon": { "type": "string", "example": "https://example.com/icon.png" },
+                      "url": { "type": "string", "format": "uri", "example": "https://www.detik.com/..." }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "400": {
+        "description": "Request invalid, message kosong",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "status": { "type": "boolean", "example": false },
+                "error": { "type": "string", "example": "Message wajib diisi" }
+              }
+            }
+          }
+        }
+      },
+      "500": {
+        "description": "Gagal memproses request",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "status": { "type": "boolean", "example": false },
+                "error": { "type": "string", "example": "Gagal memproses request" }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+},
   "/anime/identify": {
   "get": {
     "summary": "Identify Anime by URL",
@@ -103,6 +182,42 @@
               "properties": {
                 "error": { "type": "boolean", "example": true },
                 "message": { "type": "string", "example": "Error: gagal mengambil data" }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+},
+"/anime/waifu": {
+  "get": {
+    "summary": "Waifu",
+    "description": "Mengambil gambar waifu secara acak dari API waifu.pics.",
+    "tags": ["Anime"],
+    "parameters": [],
+    "responses": {
+      "200": {
+        "description": "Berhasil mengambil gambar waifu",
+        "content": {
+          "image/png": {
+            "schema": {
+              "type": "string",
+              "format": "binary",
+              "example": "Binary image data"
+            }
+          }
+        }
+      },
+      "500": {
+        "description": "Gagal memproses request",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "status": { "type": "boolean", "example": false },
+                "error": { "type": "string", "example": "Gagal mengambil waifu." }
               }
             }
           }
@@ -302,94 +417,6 @@
                   "items": { "type": "string" }
                 },
                 "message": { "type": "string", "example": "Error: gagal mengambil data" }
-              }
-            }
-          }
-        }
-      }
-    }
-  }
-},
-"/info/kuranime": {
-  "get": {
-    "summary": "Get Anime Detail by URL",
-    "description": "Mengambil detail anime, karakter, dan daftar episode dari URL anime Kuramanime",
-    "tags": ["Info"],
-    "parameters": [
-      {
-        "name": "url",
-        "in": "query",
-        "required": true,
-        "description": "URL halaman anime yang ingin diambil detailnya",
-        "schema": {
-          "type": "string",
-          "format": "uri",
-          "example": "https://v8.kuramanime.tel/anime/4080/watashi-wo-tabetai-hitodenashi"
-        }
-      }
-    ],
-    "responses": {
-      "200": {
-        "description": "Respon berhasil",
-        "content": {
-          "application/json": {
-            "schema": {
-              "type": "object",
-              "properties": {
-                "title": { "type": "string", "example": "Watashi wo Tabetai Hitodenashi" },
-                "alternative_titles": { "type": "string", "example": "Alternative Title Here" },
-                "synopsis": { "type": "string", "example": "Cerita tentang seorang karakter..." },
-                "image": { "type": "string", "format": "uri", "example": "https://kuramanime.example/image.jpg" },
-                "rating": { "type": "string", "example": "8.5" },
-                "quality": { "type": "string", "example": "HD" },
-                "type": { "type": "string", "example": "TV" },
-                "total_episodes": { "type": "string", "example": "12" },
-                "status": { "type": "string", "example": "Completed" },
-                "airing_period": { "type": "string", "example": "2021-04-01 to 2021-06-24" },
-                "season": { "type": "string", "example": "Spring 2021" },
-                "duration": { "type": "string", "example": "24 min per ep" },
-                "genres": { "type": "string", "example": "Action, Comedy" },
-                "studio": { "type": "string", "example": "Nekotoro Studio" },
-                "episodes": {
-                  "type": "array",
-                  "items": {
-                    "type": "object",
-                    "properties": {
-                      "episode_number": { "type": "integer", "example": 1 },
-                      "episode_text": { "type": "string", "example": "Episode 1" },
-                      "episode_url": { "type": "string", "format": "uri", "example": "/episode/1" },
-                      "is_new": { "type": "boolean", "example": true }
-                    }
-                  }
-                }
-              }
-            }
-          }
-        }
-      },
-      "400": {
-        "description": "Query parameter 'url' tidak dikirim",
-        "content": {
-          "application/json": {
-            "schema": {
-              "type": "object",
-              "properties": {
-                "error": { "type": "boolean", "example": true },
-                "message": { "type": "string", "example": "Query parameter 'url' is required" }
-              }
-            }
-          }
-        }
-      },
-      "500": {
-        "description": "Gagal memproses request",
-        "content": {
-          "application/json": {
-            "schema": {
-              "type": "object",
-              "properties": {
-                "error": { "type": "boolean", "example": true },
-                "message": { "type": "string", "example": "Gagal mengambil data anime" }
               }
             }
           }
@@ -976,90 +1003,6 @@
     }
   }
 },
-"/search/kuranime": {
-  "get": {
-    "summary": "Search Anime by Query",
-    "description": "Mencari daftar anime dari Kuramanime berdasarkan kata kunci pencarian.",
-    "tags": ["Search"],
-    "parameters": [
-      {
-        "name": "q",
-        "in": "query",
-        "required": true,
-        "description": "Kata kunci pencarian anime",
-        "schema": {
-          "type": "string",
-          "example": "Naruto"
-        }
-      }
-    ],
-    "responses": {
-      "200": {
-        "description": "Respon berhasil, daftar anime berhasil ditemukan.",
-        "content": {
-          "application/json": {
-            "schema": {
-              "type": "array",
-              "items": {
-                "type": "object",
-                "properties": {
-                  "title": {
-                    "type": "string",
-                    "example": "Naruto"
-                  },
-                  "thumbnail": {
-                    "type": "string",
-                    "format": "uri",
-                    "example": "https://r2.nyomo.my.id/images/20240223-1708662235.jpeg"
-                  },
-                  "url": {
-                    "type": "string",
-                    "format": "uri",
-                    "example": "https://v8.kuramanime.tel/anime/185/naruto"
-                  }
-                }
-              }
-            }
-          }
-        }
-      },
-      "400": {
-        "description": "Query parameter 'q' tidak dikirim.",
-        "content": {
-          "application/json": {
-            "schema": {
-              "type": "object",
-              "properties": {
-                "error": { "type": "boolean", "example": true },
-                "message": {
-                  "type": "string",
-                  "example": "Query parameter 'q' is required"
-                }
-              }
-            }
-          }
-        }
-      },
-      "500": {
-        "description": "Gagal memproses request.",
-        "content": {
-          "application/json": {
-            "schema": {
-              "type": "object",
-              "properties": {
-                "error": { "type": "boolean", "example": true },
-                "message": {
-                  "type": "string",
-                  "example": "Gagal mengambil data dari Kuramanime"
-                }
-              }
-            }
-          }
-        }
-      }
-    }
-  }
-},
     "/search/loker": {
       "get": {
         "summary": "JobStreet Loker Finder",
@@ -1583,7 +1526,7 @@
     "get": {
       "summary": "Stalk Twitter by Username",
       "description": "Mengambil data profil dan tweet terbaru dari akun Twitter berdasarkan username.",
-      "tags": ["Stalk", "Twitter"],
+      "tags": ["Stalk"],
       "parameters": [
         {
           "name": "username",
@@ -1671,6 +1614,64 @@
       }
     }
   },
+  "/tools/hd": {
+  "get": {
+    "summary": "Enhance Image",
+    "description": "Meningkatkan kualitas gambar dari URL menggunakan AI EnhanceIt dan langsung mengembalikan gambar hasil enhance",
+    "tags": ["Tools", "Image"],
+    "parameters": [
+      {
+        "name": "url",
+        "in": "query",
+        "required": true,
+        "description": "URL gambar yang ingin di-enhance",
+        "schema": { "type": "string", "format": "uri" }
+      }
+    ],
+    "responses": {
+      "200": {
+        "description": "Gambar berhasil di-enhance",
+        "content": {
+          "image/jpeg": {
+            "schema": {
+              "type": "string",
+              "format": "binary",
+              "example": "Binary image data"
+            }
+          }
+        }
+      },
+      "400": {
+        "description": "Request invalid, URL kosong",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "status": { "type": "boolean", "example": false },
+                "error": { "type": "string", "example": "URL gambar wajib diisi" }
+              }
+            }
+          }
+        }
+      },
+      "500": {
+        "description": "Gagal memproses request",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "status": { "type": "boolean", "example": false },
+                "error": { "type": "string", "example": "Gagal memproses gambar." }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+},
     "/tools/removebg": {
   "get": {
     "summary": "Remove Background from Image URL",
@@ -1725,6 +1726,66 @@
               "properties": {
                 "error": { "type": "boolean", "example": true },
                 "message": { "type": "string", "example": "Error: gagal menghapus background" }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+},
+"/tools/ytmonet": {
+  "get": {
+    "summary": "YouTube Monetization Check",
+    "description": "Cek status monetisasi sebuah video YouTube menggunakan Timeskip.io API",
+    "tags": ["Tools"],
+    "parameters": [
+      {
+        "name": "url",
+        "in": "query",
+        "required": true,
+        "description": "URL video YouTube yang ingin dicek",
+        "schema": { "type": "string", "format": "uri" }
+      }
+    ],
+    "responses": {
+      "200": {
+        "description": "Berhasil mendapatkan status monetisasi",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "status": { "type": "boolean", "example": true },
+                "result": { "type": "object", "example": { "monetization": "enabled" } }
+              }
+            }
+          }
+        }
+      },
+      "400": {
+        "description": "Request invalid, URL kosong atau tidak valid",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "status": { "type": "boolean", "example": false },
+                "error": { "type": "string", "example": "URL YouTube wajib diisi" }
+              }
+            }
+          }
+        }
+      },
+      "500": {
+        "description": "Gagal memproses request",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "status": { "type": "boolean", "example": false },
+                "error": { "type": "string", "example": "Gagal memproses request" }
               }
             }
           }
