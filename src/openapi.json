@@ -979,8 +979,8 @@
 "/search/kuranime": {
   "get": {
     "summary": "Search Anime by Query",
-    "description": "Mencari daftar anime dari Kuramanime berdasarkan kata kunci pencarian",
-    "tags": [ "Search"],
+    "description": "Mencari daftar anime dari Kuramanime berdasarkan kata kunci pencarian.",
+    "tags": ["Search"],
     "parameters": [
       {
         "name": "q",
@@ -995,7 +995,7 @@
     ],
     "responses": {
       "200": {
-        "description": "Respon berhasil, daftar anime ditemukan",
+        "description": "Respon berhasil, daftar anime berhasil ditemukan.",
         "content": {
           "application/json": {
             "schema": {
@@ -1003,9 +1003,20 @@
               "items": {
                 "type": "object",
                 "properties": {
-                  "title": { "type": "string", "example": "Naruto" },
-                  "thumbnail": { "type": "string", "format": "uri", "example": "https://kuramanime.example/thumbnail.jpg" },
-                  "url": { "type": "string", "format": "uri", "example": "https://v8.kuramanime.tel/anime/20/naruto" }
+                  "title": {
+                    "type": "string",
+                    "example": "Naruto"
+                  },
+                  "thumbnail": {
+                    "type": "string",
+                    "format": "uri",
+                    "example": "https://r2.nyomo.my.id/images/20240223-1708662235.jpeg"
+                  },
+                  "url": {
+                    "type": "string",
+                    "format": "uri",
+                    "example": "https://v8.kuramanime.tel/anime/185/naruto"
+                  }
                 }
               }
             }
@@ -1013,28 +1024,34 @@
         }
       },
       "400": {
-        "description": "Query parameter 'q' tidak dikirim",
+        "description": "Query parameter 'q' tidak dikirim.",
         "content": {
           "application/json": {
             "schema": {
               "type": "object",
               "properties": {
                 "error": { "type": "boolean", "example": true },
-                "message": { "type": "string", "example": "Query parameter 'q' is required" }
+                "message": {
+                  "type": "string",
+                  "example": "Query parameter 'q' is required"
+                }
               }
             }
           }
         }
       },
       "500": {
-        "description": "Gagal memproses request",
+        "description": "Gagal memproses request.",
         "content": {
           "application/json": {
             "schema": {
               "type": "object",
               "properties": {
                 "error": { "type": "boolean", "example": true },
-                "message": { "type": "string", "example": "Gagal mengambil data dari Kuramanime" }
+                "message": {
+                  "type": "string",
+                  "example": "Gagal mengambil data dari Kuramanime"
+                }
               }
             }
           }
