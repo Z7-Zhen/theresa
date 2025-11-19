@@ -17,6 +17,7 @@
     { "name": "Info" },
     { "name": "orderkouta" },
     { "name": "Search" },
+    { "name": "Stalk" },
     { "name": "Tools" }
   ],
   "paths": {
@@ -75,6 +76,147 @@
               "properties": {
                 "status": { "type": "boolean", "example": false },
                 "error": { "type": "string", "example": "Message wajib diisi" }
+              }
+            }
+          }
+        }
+      },
+      "500": {
+        "description": "Gagal memproses request",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "status": { "type": "boolean", "example": false },
+                "error": { "type": "string", "example": "Gagal memproses request" }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+},
+"/ai/chrunos": {
+  "get": {
+    "summary": "HuggingFace Stream Chat",
+    "description": "Mengirim pesan ke model HuggingFace (SSE Stream) dan mendapatkan jawaban tanpa konten thinking.",
+    "tags": ["AI"],
+    "parameters": [
+      {
+        "name": "message",
+        "in": "query",
+        "required": true,
+        "description": "Teks atau pertanyaan yang ingin dikirim ke model HuggingFace",
+        "schema": { "type": "string" }
+      }
+    ],
+    "responses": {
+      "200": {
+        "description": "Berhasil mendapatkan jawaban dari model HuggingFace",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "status": { "type": "boolean", "example": true },
+                "result": {
+                  "type": "object",
+                  "properties": {
+                    "text": {
+                      "type": "string",
+                      "example": "Halo juga! Selamat malam, ada yang bisa saya bantu?"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "400": {
+        "description": "Request invalid, message kosong",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "status": { "type": "boolean", "example": false },
+                "error": { "type": "string", "example": "Pesan wajib diisi" }
+              }
+            }
+          }
+        }
+      },
+      "500": {
+        "description": "Gagal memproses request",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "status": { "type": "boolean", "example": false },
+                "error": { "type": "string", "example": "Gagal memproses request" }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+},
+"/ai/hammer": {
+  "get": {
+    "summary": "HammerAI Chat",
+    "description": "Mengirim pesan ke model HammerAI (Luna AI) dan mendapatkan jawaban berdasarkan karakter yang sudah ditentukan.",
+    "tags": ["AI"],
+    "parameters": [
+      {
+        "name": "message",
+        "in": "query",
+        "required": true,
+        "description": "Teks atau pertanyaan yang ingin dikirim ke HammerAI",
+        "schema": { "type": "string" }
+      }
+    ],
+    "responses": {
+      "200": {
+        "description": "Berhasil mendapatkan jawaban dari HammerAI",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "status": { "type": "boolean", "example": true },
+                "creator": { "type": "string", "example": "Z7:林企业" },
+                "result": {
+                  "type": "object",
+                  "properties": {
+                    "text": {
+                      "type": "string",
+                      "example": "Hello master. *smiles softly* Is there anything you need from me?"
+                    },
+                    "raw": {
+                      "description": "Data mentah langsung dari HammerAI",
+                      "type": "object"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "400": {
+        "description": "Request invalid, message kosong",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "status": { "type": "boolean", "example": false },
+                "error": { "type": "string", "example": "Pesan wajib diisi" }
               }
             }
           }
@@ -226,238 +368,6 @@
     }
   }
 },
-  "/image/ba": {
-      "get": {
-        "summary": "Blue Archive",
-        "description": "Blue Archive Random Images",
-        "tags": ["Image"],
-        "responses": {
-          "200": {
-            "description": "Respon berhasil",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "status": { "type": "boolean", "example": true },
-                    "images": {
-                      "type": "array",
-                      "items": { "type": "string", "format": "uri" }
-                    }
-                  }
-                }
-              }
-            }
-          },
-          "500": { "description": "Gagal memproses request" }
-        }
-      }
-    },
-    
-    "/info/growagarden": {
-      "get": {
-        "summary": "Grow A Garden Info",
-        "description": "Menampilkan data terbaru event Grow a Garden (GamersBerg) tanpa API key",
-        "tags": ["Info"],
-        "responses": {
-          "200": {
-            "description": "Data berhasil diambil",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "status": { "type": "boolean", "example": true },
-                    "creator": { "type": "string", "example": "Z7:林企业" },
-                    "result": {
-                      "type": "object",
-                      "properties": {
-                        "updated": { "type": "string", "format": "date-time" },
-                        "user": {
-                          "type": "object",
-                          "properties": {
-                            "playerName": { "type": "string", "example": "Player123" },
-                            "userId": { "type": "string", "example": "987654321" },
-                            "sessionId": { "type": "string", "example": "abc123xyz" }
-                          }
-                        },
-                        "garden": {
-                          "type": "object",
-                          "properties": {
-                            "updateNumber": { "type": "integer", "example": 5 },
-                            "timestamp": { "type": "string", "example": "2025-11-16T12:00:00Z" },
-                            "weather": { "type": "string", "example": "Sunny" },
-                            "seeds": {
-                              "type": "array",
-                              "items": {
-                                "type": "object",
-                                "properties": {
-                                  "name": { "type": "string", "example": "Carrot" },
-                                  "quantity": { "type": "integer", "example": 10 },
-                                  "image": { "type": "string", "format": "uri" }
-                                }
-                              }
-                            },
-                            "gear": {
-                              "type": "array",
-                              "items": {
-                                "type": "object",
-                                "properties": {
-                                  "name": { "type": "string", "example": "Shovel" },
-                                  "quantity": { "type": "integer", "example": 1 },
-                                  "image": { "type": "string", "format": "uri" }
-                                }
-                              }
-                            },
-                            "cosmetic": {
-                              "type": "array",
-                              "items": {
-                                "type": "object",
-                                "properties": {
-                                  "name": { "type": "string", "example": "Hat" },
-                                  "quantity": { "type": "integer", "example": 1 },
-                                  "image": { "type": "string", "format": "uri" }
-                                }
-                              }
-                            },
-                            "eggs": {
-                              "type": "array",
-                              "items": {
-                                "type": "object",
-                                "properties": {
-                                  "name": { "type": "string", "example": "Golden Egg" },
-                                  "quantity": { "type": "integer", "example": 2 },
-                                  "image": { "type": "string", "format": "uri" }
-                                }
-                              }
-                            },
-                            "event": { "type": "object" },
-                            "honeyevent": { "type": "object" },
-                            "nightevent": { "type": "object" },
-                            "traveling": { "type": "object" }
-                          }
-                        },
-                        "meta": { "type": "object" }
-                      }
-                    }
-                  }
-                }
-              }
-            }
-          },
-          "500": {
-            "description": "Terjadi kesalahan server",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "status": { "type": "boolean", "example": false },
-                    "creator": { "type": "string", "example": "Z7:林企业" },
-                    "error": { "type": "string", "example": "Gagal mengambil data Grow a Garden" }
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/info/jadwalbola": {
-  "get": {
-    "summary": "Jadwal Sepakbola",
-    "description": "Mendapatkan jadwal sepakbola terbaru",
-    "tags": ["Info"],
-    "responses": {
-      "200": {
-        "description": "Respon berhasil",
-        "content": {
-          "application/json": {
-            "schema": {
-              "type": "object",
-              "properties": {
-                "status": { "type": "boolean", "example": true },
-                "data": {
-                  "type": "array",
-                  "items": { "type": "string", "example": "Barcelona - Real Madrid - 20:00" }
-                }
-              }
-            }
-          }
-        }
-      },
-      "404": {
-        "description": "Tidak ada jadwal ditemukan",
-        "content": {
-          "application/json": {
-            "schema": {
-              "type": "object",
-              "properties": {
-                "status": { "type": "boolean", "example": false },
-                "data": {
-                  "type": "array",
-                  "items": { "type": "string" }
-                },
-                "message": { "type": "string", "example": "Tidak ada hasil ditemukan" }
-              }
-            }
-          }
-        }
-      },
-      "500": {
-        "description": "Gagal memproses request",
-        "content": {
-          "application/json": {
-            "schema": {
-              "type": "object",
-              "properties": {
-                "status": { "type": "boolean", "example": false },
-                "data": {
-                  "type": "array",
-                  "items": { "type": "string" }
-                },
-                "message": { "type": "string", "example": "Error: gagal mengambil data" }
-              }
-            }
-          }
-        }
-      }
-    }
-  }
-},
-    "/info/manwha": {
-      "get": {
-        "summary": "Manwha Detail",
-        "description": "Ambil detail komik Webtoons dari URL",
-        "tags": ["Info"],
-        "parameters": [
-          {
-            "name": "url",
-            "in": "query",
-            "required": true,
-            "schema": { "type": "string", "format": "uri" },
-            "description": "URL halaman Webtoons/Manwha"
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Respon berhasil",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "status": { "type": "boolean", "example": true },
-                    "result": { "type": "object" }
-                  }
-                }
-              }
-            }
-          },
-          "500": { "description": "Gagal memproses request" }
-        }
-      }
-    },
     "/download/applemusic": {
   "get": {
     "summary": "Apple Music Downloader",
@@ -501,6 +411,116 @@
       },
       "400": { "description": "URL tidak disertakan" },
       "500": { "description": "Gagal memproses request" }
+    }
+  }
+},
+"/download/bilibili": {
+  "get": {
+    "summary": "Bilibili Video Downloader",
+    "description": "Mengunduh video dari Bilibili.",
+    "tags": ["Downloader"],
+    "parameters": [
+      {
+        "name": "url",
+        "in": "query",
+        "required": true,
+        "description": "URL video Bilibili (contoh: https://www.bilibili.tv/video/123456)",
+        "schema": { "type": "string" }
+      },
+      {
+        "name": "quality",
+        "in": "query",
+        "required": false,
+        "description": "Kualitas video yang diinginkan (default: 480P)",
+        "schema": {
+          "type": "string",
+          "enum": ["360P", "480P", "720P", "1080P"]
+        }
+      }
+    ],
+    "responses": {
+      "200": {
+        "description": "Berhasil mendapatkan metadata & video Bilibili",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "status": { "type": "boolean", "example": true },
+                "creator": { "type": "string", "example": "Z7:林企业" },
+                "info": {
+                  "type": "object",
+                  "properties": {
+                    "title": {
+                      "type": "string",
+                      "example": "Funny Anime Moments Compilation"
+                    },
+                    "description": {
+                      "type": "string",
+                      "example": "Kumpulan momen anime lucu dari berbagai episode."
+                    },
+                    "type": {
+                      "type": "string",
+                      "example": "video/mp4"
+                    },
+                    "cover": {
+                      "type": "string",
+                      "example": "https://img.bilibili.com/cover/example.jpg"
+                    },
+                    "views": {
+                      "type": "string",
+                      "example": "1.2M"
+                    },
+                    "like": {
+                      "type": "string",
+                      "example": "150K"
+                    }
+                  }
+                },
+                "video": {
+                  "type": "string",
+                  "description": "Video dalam format Base64 (MP4)",
+                  "example": "BASE64_STRING_DI_SINI"
+                }
+              }
+            }
+          }
+        }
+      },
+      "400": {
+        "description": "Request invalid / parameter kurang",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "status": { "type": "boolean", "example": false },
+                "error": {
+                  "type": "string",
+                  "example": "Parameter 'url' wajib diisi!"
+                }
+              }
+            }
+          }
+        }
+      },
+      "500": {
+        "description": "Gagal memproses permintaan",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "status": { "type": "boolean", "example": false },
+                "error": {
+                  "type": "string",
+                  "example": "Terjadi kesalahan server saat memproses video"
+                }
+              }
+            }
+          }
+        }
+      }
     }
   }
 },
@@ -756,6 +776,237 @@
       }
     }
   },
+    "/image/bluearchive": {
+      "get": {
+        "summary": "Blue Archive",
+        "description": "Blue Archive Random Images",
+        "tags": ["Image"],
+        "responses": {
+          "200": {
+            "description": "Respon berhasil",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": { "type": "boolean", "example": true },
+                    "images": {
+                      "type": "array",
+                      "items": { "type": "string", "format": "uri" }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": { "description": "Gagal memproses request" }
+        }
+      }
+    },
+    "/info/growagarden": {
+      "get": {
+        "summary": "Grow A Garden Info",
+        "description": "Menampilkan data terbaru event Grow a Garden (GamersBerg) tanpa API key",
+        "tags": ["Info"],
+        "responses": {
+          "200": {
+            "description": "Data berhasil diambil",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": { "type": "boolean", "example": true },
+                    "creator": { "type": "string", "example": "Z7:林企业" },
+                    "result": {
+                      "type": "object",
+                      "properties": {
+                        "updated": { "type": "string", "format": "date-time" },
+                        "user": {
+                          "type": "object",
+                          "properties": {
+                            "playerName": { "type": "string", "example": "Player123" },
+                            "userId": { "type": "string", "example": "987654321" },
+                            "sessionId": { "type": "string", "example": "abc123xyz" }
+                          }
+                        },
+                        "garden": {
+                          "type": "object",
+                          "properties": {
+                            "updateNumber": { "type": "integer", "example": 5 },
+                            "timestamp": { "type": "string", "example": "2025-11-16T12:00:00Z" },
+                            "weather": { "type": "string", "example": "Sunny" },
+                            "seeds": {
+                              "type": "array",
+                              "items": {
+                                "type": "object",
+                                "properties": {
+                                  "name": { "type": "string", "example": "Carrot" },
+                                  "quantity": { "type": "integer", "example": 10 },
+                                  "image": { "type": "string", "format": "uri" }
+                                }
+                              }
+                            },
+                            "gear": {
+                              "type": "array",
+                              "items": {
+                                "type": "object",
+                                "properties": {
+                                  "name": { "type": "string", "example": "Shovel" },
+                                  "quantity": { "type": "integer", "example": 1 },
+                                  "image": { "type": "string", "format": "uri" }
+                                }
+                              }
+                            },
+                            "cosmetic": {
+                              "type": "array",
+                              "items": {
+                                "type": "object",
+                                "properties": {
+                                  "name": { "type": "string", "example": "Hat" },
+                                  "quantity": { "type": "integer", "example": 1 },
+                                  "image": { "type": "string", "format": "uri" }
+                                }
+                              }
+                            },
+                            "eggs": {
+                              "type": "array",
+                              "items": {
+                                "type": "object",
+                                "properties": {
+                                  "name": { "type": "string", "example": "Golden Egg" },
+                                  "quantity": { "type": "integer", "example": 2 },
+                                  "image": { "type": "string", "format": "uri" }
+                                }
+                              }
+                            },
+                            "event": { "type": "object" },
+                            "honeyevent": { "type": "object" },
+                            "nightevent": { "type": "object" },
+                            "traveling": { "type": "object" }
+                          }
+                        },
+                        "meta": { "type": "object" }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Terjadi kesalahan server",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": { "type": "boolean", "example": false },
+                    "creator": { "type": "string", "example": "Z7:林企业" },
+                    "error": { "type": "string", "example": "Gagal mengambil data Grow a Garden" }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/info/jadwalbola": {
+  "get": {
+    "summary": "Jadwal Sepakbola",
+    "description": "Mendapatkan jadwal sepakbola terbaru",
+    "tags": ["Info"],
+    "responses": {
+      "200": {
+        "description": "Respon berhasil",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "status": { "type": "boolean", "example": true },
+                "data": {
+                  "type": "array",
+                  "items": { "type": "string", "example": "Barcelona - Real Madrid - 20:00" }
+                }
+              }
+            }
+          }
+        }
+      },
+      "404": {
+        "description": "Tidak ada jadwal ditemukan",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "status": { "type": "boolean", "example": false },
+                "data": {
+                  "type": "array",
+                  "items": { "type": "string" }
+                },
+                "message": { "type": "string", "example": "Tidak ada hasil ditemukan" }
+              }
+            }
+          }
+        }
+      },
+      "500": {
+        "description": "Gagal memproses request",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "status": { "type": "boolean", "example": false },
+                "data": {
+                  "type": "array",
+                  "items": { "type": "string" }
+                },
+                "message": { "type": "string", "example": "Error: gagal mengambil data" }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+},
+    "/info/manwha": {
+      "get": {
+        "summary": "Manwha Detail",
+        "description": "Ambil detail komik Webtoons dari URL",
+        "tags": ["Info"],
+        "parameters": [
+          {
+            "name": "url",
+            "in": "query",
+            "required": true,
+            "schema": { "type": "string", "format": "uri" },
+            "description": "URL halaman Webtoons/Manwha"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Respon berhasil",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": { "type": "boolean", "example": true },
+                    "result": { "type": "object" }
+                  }
+                }
+              }
+            }
+          },
+          "500": { "description": "Gagal memproses request" }
+        }
+      }
+    },
     "/search/alkitab": {
   "get": {
     "summary": "Alkitab Search",
@@ -1494,6 +1745,102 @@
       }
     }
   },
+  "/search/wattpad": {
+  "get": {
+    "summary": "Wattpad Story Search",
+    "description": "Mencari cerita Wattpad berdasarkan kata kunci dan mengembalikan daftar hasil lengkap.",
+    "tags": ["Search"],
+    "parameters": [
+      {
+        "name": "q",
+        "in": "query",
+        "required": true,
+        "description": "Kata kunci pencarian Wattpad (contoh: romance, fantasy, horror)",
+        "schema": { "type": "string" }
+      }
+    ],
+    "responses": {
+      "200": {
+        "description": "Berhasil mendapatkan daftar cerita Wattpad",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "status": { "type": "boolean", "example": true },
+                "creator": { "type": "string", "example": "Z7:林企业" },
+                "result": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "title": {
+                        "type": "string",
+                        "example": "The Bad Boy's Girl"
+                      },
+                      "reads": {
+                        "type": "string",
+                        "example": "12.4M"
+                      },
+                      "vote": {
+                        "type": "string",
+                        "example": "1.2M"
+                      },
+                      "chapter": {
+                        "type": "string",
+                        "example": "45"
+                      },
+                      "desc": {
+                        "type": "string",
+                        "example": "Tessa bertemu dengan bad boy di sekolahnya..."
+                      },
+                      "thumb": {
+                        "type": "string",
+                        "example": "https://img.wattpad.com/cover/example.jpg"
+                      },
+                      "link": {
+                        "type": "string",
+                        "example": "https://www.wattpad.com/story/12345"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "400": {
+        "description": "Request invalid, parameter q kosong",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "status": { "type": "boolean", "example": false },
+                "error": { "type": "string", "example": "Parameter 'q' wajib diisi!" }
+              }
+            }
+          }
+        }
+      },
+      "500": {
+        "description": "Gagal memproses request",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "status": { "type": "boolean", "example": false },
+                "error": { "type": "string", "example": "Terjadi kesalahan server" }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+},
      "/search/youtube": {
       "get": {
         "summary": "YouTube Search",

@@ -9,7 +9,7 @@ module.exports = function(app) {
             throw error;
         }
     }
-    app.get('/image/ba', async (req, res) => {
+    app.get('/image/bluearchive', async (req, res) => {
         try {
             const pedo = await bluearchive();
             res.writeHead(200, {
