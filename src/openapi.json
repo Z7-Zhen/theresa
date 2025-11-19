@@ -655,6 +655,80 @@
         }
       }
     },
+    "/download/spotify": {
+  "get": {
+    "summary": "Download Lagu Spotify",
+    "description": "Mengambil metadata lagu dari Spotify dan mendapatkan link download melalui SpotDL.io",
+    "tags": ["Downloader", "Spotify"],
+    "parameters": [
+      {
+        "name": "url",
+        "in": "query",
+        "required": true,
+        "description": "URL track Spotify yang ingin di-download",
+        "schema": { "type": "string", "example": "https://open.spotify.com/track/6yID3RbYKiwn2p2LPz0OkK" }
+      }
+    ],
+    "responses": {
+      "200": {
+        "description": "Berhasil mendapatkan metadata lagu dan link download",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "status": { "type": "boolean", "example": true },
+                "creator": { "type": "string", "example": "Z7:林企业" },
+                "result": {
+                  "type": "object",
+                  "properties": {
+                    "id": { "type": "string", "example": "4cBm8rv2B5BJWU2pDaHVbF" },
+                    "name": { "type": "string", "example": "Multo" },
+                    "artist": { "type": "string", "example": "Cup of Joe" },
+                    "album_cover": { "type": "string", "example": "https://i.scdn.co/image/ab67616d0000b273394048503e3be0e65e962638" },
+                    "explicit": { "type": "boolean", "example": false },
+                    "duration_ms": { "type": "integer", "example": 237692 },
+                    "duration": { "type": "string", "example": "3:57" },
+                    "spotify_url": { "type": "string", "example": "https://open.spotify.com/track/4cBm8rv2B5BJWU2pDaHVbF" },
+                    "download_url": { "type": "string", "example": "https://spotdl.io/download/..." }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "400": {
+        "description": "Request invalid, parameter URL kosong atau bukan Spotify",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "status": { "type": "boolean", "example": false },
+                "error": { "type": "string", "example": "Parameter URL wajib diisi" }
+              }
+            }
+          }
+        }
+      },
+      "500": {
+        "description": "Gagal memproses request Spotify",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "status": { "type": "boolean", "example": false },
+                "error": { "type": "string", "example": "Gagal memproses request" }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+},
     "/download/tiktok": {
   "get": {
     "summary": "TikTok",
