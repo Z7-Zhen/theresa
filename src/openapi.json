@@ -620,6 +620,82 @@
     }
   }
 },
+"/download/pinterest": {
+  "get": {
+    "summary": "Pinterest ",
+    "description": "Mengambil data dan link media (video/image) dari URL Pinterest / pin.it.",
+    "tags": ["Downloader"],
+    "parameters": [
+      {
+        "name": "url",
+        "in": "query",
+        "description": "URL Pinterest / pin.it yang ingin di-download",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "example": "https://pin.it/lOPdveAO7"
+        }
+      }
+    ],
+    "responses": {
+      "200": {
+        "description": "Berhasil mengambil data Pinterest",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "status": { "type": "boolean", "example": true },
+                "creator": { "type": "string", "example": "Z7:林企业" },
+                "result": {
+                  "type": "object",
+                  "properties": {
+                    "type": { "type": "string", "example": "video" },
+                    "title": { "type": "string", "example": "Art" },
+                    "author": { "type": "string", "example": "ShiroAMV7" },
+                    "username": { "type": "string", "example": "shiroamv7" },
+                    "media": { "type": "string", "example": "https://v1.pinimg.com/videos/iht/expMp4/..." },
+                    "pinterest_url": { "type": "string", "example": "https://pin.it/lOPdveAO7" }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "400": {
+        "description": "URL tidak valid",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "status": { "type": "boolean", "example": false },
+                "creator": { "type": "string", "example": "Z7:林企业" },
+                "error": { "type": "string", "example": "URL harus dari Pinterest / pin.it" }
+              }
+            }
+          }
+        }
+      },
+      "500": {
+        "description": "Gagal memproses request",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "status": { "type": "boolean", "example": false },
+                "creator": { "type": "string", "example": "Z7:林企业" },
+                "error": { "type": "string", "example": "Gagal memproses request" }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+},
     "/download/soundcloud": {
       "get": {
         "summary": "SoundCloud Downloader",
@@ -658,7 +734,7 @@
     "/download/spotify": {
   "get": {
     "summary": "Download Lagu Spotify",
-    "description": "Mengambil metadata lagu dari Spotify dan mendapatkan link download melalui SpotDL.io",
+    "description": "Mengambil metadata lagu dari Spotify dan mendapatkan link download melalui Spotmate",
     "tags": ["Downloader", "Spotify"],
     "parameters": [
       {
@@ -666,7 +742,10 @@
         "in": "query",
         "required": true,
         "description": "URL track Spotify yang ingin di-download",
-        "schema": { "type": "string", "example": "https://open.spotify.com/track/6yID3RbYKiwn2p2LPz0OkK" }
+        "schema": {
+          "type": "string",
+          "example": "https://open.spotify.com/track/6yID3RbYKiwn2p2LPz0OkK"
+        }
       }
     ],
     "responses": {
@@ -682,15 +761,15 @@
                 "result": {
                   "type": "object",
                   "properties": {
-                    "id": { "type": "string", "example": "4cBm8rv2B5BJWU2pDaHVbF" },
-                    "name": { "type": "string", "example": "Multo" },
-                    "artist": { "type": "string", "example": "Cup of Joe" },
-                    "album_cover": { "type": "string", "example": "https://i.scdn.co/image/ab67616d0000b273394048503e3be0e65e962638" },
-                    "explicit": { "type": "boolean", "example": false },
-                    "duration_ms": { "type": "integer", "example": 237692 },
+                    "title": { "type": "string", "example": "Multo" },
+                    "artists": { "type": "string", "example": "Cup of Joe" },
+                    "album": { "type": "string", "example": "Multo Album" },
+                    "release": { "type": "string", "example": "2023-05-12" },
                     "duration": { "type": "string", "example": "3:57" },
+                    "popularity": { "type": "string", "example": "87%" },
+                    "cover": { "type": "string", "example": "https://i.scdn.co/image/ab67616d0000b273394048503e3be0e65e962638" },
                     "spotify_url": { "type": "string", "example": "https://open.spotify.com/track/4cBm8rv2B5BJWU2pDaHVbF" },
-                    "download_url": { "type": "string", "example": "https://spotdl.io/download/..." }
+                    "download_url": { "type": "string", "example": "https://spotmate.online/download/..." }
                   }
                 }
               }
@@ -699,7 +778,7 @@
         }
       },
       "400": {
-        "description": "Request invalid, parameter URL kosong atau bukan Spotify",
+        "description": "Request invalid, parameter URL kosong",
         "content": {
           "application/json": {
             "schema": {

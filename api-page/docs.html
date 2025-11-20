@@ -177,7 +177,6 @@
         <span id="unread-count" class="text-xs bg-slate-900 text-white px-2 py-1 hidden"></span>
     </div>
     <div id="notifications-list" class="space-y-2">
-        <div class="loader">Loading...</div>
     </div>
 </div>
 
@@ -835,50 +834,66 @@ document.addEventListener('DOMContentLoaded', loadNotifications);
 
         // Function to load and render notifications
         async function loadNotifications() {
-            const notificationsList = document.getElementById('notifications-list');
-            const unreadCountBadge = document.getElementById('unread-count');
-            try {
-                const response = await fetch('/src/notifications.json');
-                const notifications = await response.json();
+    const notificationsList = document.getElementById('notifications-list');
+    const unreadCountBadge = document.getElementById('unread-count');
 
-                notificationsList.innerHTML = ''; // Clear loader
-                let unreadCount = 0;
+    try {
+        // Tambahkan cache-busting untuk selalu ambil versi terbaru
+        const response = await fetch(`/src/notifications.json?t=${Date.now()}`);
+        let notifications = await response.json();
 
-                // Sort notifications by date, newest first
-                notifications.sort((a, b) => new Date(b.date) - new Date(a.date));
-
-                notifications.forEach((notif, index) => {
-                    if (!notif.read) {
-                        unreadCount++;
-                    }
-                    const notifElement = document.createElement('div');
-                    notifElement.className = `bg-white border border-gray-200 p-4 text-xs will-fade-in fade-in ${notif.read ? 'opacity-60' : ''}`;
-                    notifElement.style.animationDelay = `${index * 50}ms`;
-                    notifElement.innerHTML = `
-                        <div class="flex justify-between items-start">
-                            <div class="flex-1">
-                                <p class="font-bold text-slate-800 mb-1">${notif.title}</p>
-                                <p class="text-slate-600">${notif.message}</p>
-                            </div>
-                            <div class="flex items-center ml-4 flex-shrink-0">
-                                ${!notif.read ? '<div class="w-2 h-2 bg-green-400 rounded-full mr-2" title="Unread"></div>' : ''}
-                                <span class="text-slate-500">${new Date(notif.date).toLocaleDateString('id-ID', { year: 'numeric', month: 'short', day: 'numeric' })}</span>
-                            </div>
-                        </div>
-                    `;
-                    notificationsList.appendChild(notifElement);
-                });
-
-                if (unreadCount > 0) {
-                    unreadCountBadge.textContent = `${unreadCount} Belum dibaca`;
-                    unreadCountBadge.classList.remove('hidden');
-                }
-
-            } catch (error) {
-                notificationsList.innerHTML = '<p class="text-red-500 text-xs">Gagal memuat notifikasi.</p>';
-                console.error('Error loading notifications:', error);
-            }
+        // Pastikan notifications selalu array
+        if (!Array.isArray(notifications)) {
+            notifications = notifications ? [notifications] : [];
         }
+
+        notificationsList.innerHTML = ''; // Clear loader
+        let unreadCount = 0;
+
+        // Sort notifications by date, newest first
+        notifications.sort((a, b) => new Date(b.date || 0) - new Date(a.date || 0));
+
+        notifications.forEach((notif, index) => {
+            if (!notif.read) unreadCount++;
+
+            const notifElement = document.createElement('div');
+            notifElement.className = `bg-white border border-gray-200 p-4 text-xs will-fade-in fade-in ${notif.read ? 'opacity-60' : ''}`;
+            notifElement.style.animationDelay = `${index * 50}ms`;
+            notifElement.innerHTML = `
+                <div class="flex justify-between items-start">
+                    <div class="flex-1">
+                        <p class="font-bold text-slate-800 mb-1">${notif.title || 'Tanpa Judul'}</p>
+                        <p class="text-slate-600">${notif.message || '-'}</p>
+                    </div>
+                    <div class="flex items-center ml-4 flex-shrink-0">
+                        ${!notif.read ? '<div class="w-2 h-2 bg-green-400 rounded-full mr-2" title="Unread"></div>' : ''}
+                        <span class="text-slate-500">${notif.date ? new Date(notif.date).toLocaleDateString('id-ID', { year: 'numeric', month: 'short', day: 'numeric' }) : '-'}</span>
+                    </div>
+                </div>
+            `;
+            notificationsList.appendChild(notifElement);
+        });
+
+        // Update unread badge
+        if (unreadCount > 0) {
+            unreadCountBadge.textContent = unreadCount;
+            unreadCountBadge.classList.remove('hidden');
+        } else {
+            unreadCountBadge.classList.add('hidden');
+        }
+
+        // Jika tidak ada notifikasi
+        if (notifications.length === 0) {
+            notificationsList.innerHTML = '<p class="text-center text-slate-500 text-xs py-4">Tidak ada notifikasi</p>';
+        }
+
+    } catch (error) {
+        console.error('Gagal memuat notifikasi:', error);
+        notificationsList.innerHTML = '<p class="text-center text-red-500 text-xs py-4">Gagal memuat notifikasi</p>';
+        unreadCountBadge.classList.add('hidden');
+    }
+}
+
 
         // Search functionality
         document.getElementById('searchInput').addEventListener('input', function() {
