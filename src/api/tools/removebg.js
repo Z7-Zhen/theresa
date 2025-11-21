@@ -5,9 +5,9 @@ const path = require("path");
 
 module.exports = function(app) {
     async function removeBackgroundFromUrl(imageUrl) {
-        // Tentukan folder tmp khusus
-        const tmpDir = path.join(__dirname, "tmp");
-        fs.mkdirSync(tmpDir, { recursive: true }); // otomatis buat jika belum ada
+        // Folder tmp di Vercel (writable)
+        const tmpDir = "/tmp/removebg";
+        fs.mkdirSync(tmpDir, { recursive: true });
 
         const tempFile = path.join(tmpDir, "temp_download.jpg");
 
@@ -15,7 +15,7 @@ module.exports = function(app) {
         const response = await axios.get(imageUrl, { responseType: "arraybuffer" });
         fs.writeFileSync(tempFile, response.data);
 
-        // Prepare form-data untuk API remove background
+        // Prepare form-data
         const form = new FormData();
         form.append("image", fs.createReadStream(tempFile));
         form.append("format", "png");
@@ -29,10 +29,9 @@ module.exports = function(app) {
         // Hapus file sementara
         fs.unlinkSync(tempFile);
 
-        return res.data; // Mengembalikan buffer PNG
+        return res.data; 
     }
 
-    // Endpoint GET /tools/removebg?url=<imageURL>
     app.get("/tools/removebg", async (req, res) => {
         const imageUrl = req.query.url;
         if (!imageUrl) {
