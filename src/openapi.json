@@ -21,6 +21,74 @@
     { "name": "Tools" }
   ],
   "paths": {
+    "/ai/chrunos": {
+  "get": {
+    "summary": "HuggingFace Stream Chat",
+    "description": "Mengirim pesan ke model HuggingFace (SSE Stream) dan mendapatkan jawaban tanpa konten thinking.",
+    "tags": ["AI"],
+    "parameters": [
+      {
+        "name": "message",
+        "in": "query",
+        "required": true,
+        "description": "Teks atau pertanyaan yang ingin dikirim ke model HuggingFace",
+        "schema": { "type": "string" }
+      }
+    ],
+    "responses": {
+      "200": {
+        "description": "Berhasil mendapatkan jawaban dari model HuggingFace",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "status": { "type": "boolean", "example": true },
+                "result": {
+                  "type": "object",
+                  "properties": {
+                    "text": {
+                      "type": "string",
+                      "example": "Halo juga! Selamat malam, ada yang bisa saya bantu?"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "400": {
+        "description": "Request invalid, message kosong",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "status": { "type": "boolean", "example": false },
+                "error": { "type": "string", "example": "Pesan wajib diisi" }
+              }
+            }
+          }
+        }
+      },
+      "500": {
+        "description": "Gagal memproses request",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "status": { "type": "boolean", "example": false },
+                "error": { "type": "string", "example": "Gagal memproses request" }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+},
     "/ai/copilot": {
   "get": {
     "summary": "Copilot Chat",
@@ -98,35 +166,40 @@
     }
   }
 },
-"/ai/chrunos": {
+"/ai/hammer": {
   "get": {
-    "summary": "HuggingFace Stream Chat",
-    "description": "Mengirim pesan ke model HuggingFace (SSE Stream) dan mendapatkan jawaban tanpa konten thinking.",
+    "summary": "HammerAI Chat",
+    "description": "Mengirim pesan ke model HammerAI (Luna AI) dan mendapatkan jawaban berdasarkan karakter yang sudah ditentukan.",
     "tags": ["AI"],
     "parameters": [
       {
         "name": "message",
         "in": "query",
         "required": true,
-        "description": "Teks atau pertanyaan yang ingin dikirim ke model HuggingFace",
+        "description": "Teks atau pertanyaan yang ingin dikirim ke HammerAI",
         "schema": { "type": "string" }
       }
     ],
     "responses": {
       "200": {
-        "description": "Berhasil mendapatkan jawaban dari model HuggingFace",
+        "description": "Berhasil mendapatkan jawaban dari HammerAI",
         "content": {
           "application/json": {
             "schema": {
               "type": "object",
               "properties": {
                 "status": { "type": "boolean", "example": true },
+                "creator": { "type": "string", "example": "Z7:林企业" },
                 "result": {
                   "type": "object",
                   "properties": {
                     "text": {
                       "type": "string",
-                      "example": "Halo juga! Selamat malam, ada yang bisa saya bantu?"
+                      "example": "Hello master. *smiles softly* Is there anything you need from me?"
+                    },
+                    "raw": {
+                      "description": "Data mentah langsung dari HammerAI",
+                      "type": "object"
                     }
                   }
                 }
@@ -166,40 +239,166 @@
     }
   }
 },
-"/ai/hammer": {
+"/ai/unlimited": {
   "get": {
-    "summary": "HammerAI Chat",
-    "description": "Mengirim pesan ke model HammerAI (Luna AI) dan mendapatkan jawaban berdasarkan karakter yang sudah ditentukan.",
+    "summary": "UnlimitedAI Chat",
+    "description": "Mengirim pertanyaan ke model UnlimitedAI dan mendapatkan jawaban final.",
     "tags": ["AI"],
     "parameters": [
       {
         "name": "message",
         "in": "query",
         "required": true,
-        "description": "Teks atau pertanyaan yang ingin dikirim ke HammerAI",
+        "description": "Teks atau pertanyaan yang ingin dikirim ke UnlimitedAI",
         "schema": { "type": "string" }
       }
     ],
     "responses": {
       "200": {
-        "description": "Berhasil mendapatkan jawaban dari HammerAI",
+        "description": "Berhasil mendapatkan jawaban dari UnlimitedAI",
         "content": {
           "application/json": {
             "schema": {
               "type": "object",
               "properties": {
                 "status": { "type": "boolean", "example": true },
-                "creator": { "type": "string", "example": "Z7:林企业" },
+                "result": {
+                  "type": "string",
+                  "example": "Halo juga! Selamat malam, ada yang bisa saya bantu?"
+                }
+              }
+            }
+          }
+        }
+      },
+      "400": {
+        "description": "Request invalid, message kosong",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "status": { "type": "boolean", "example": false },
+                "error": { "type": "string", "example": "Pesan wajib diisi" }
+              }
+            }
+          }
+        }
+      },
+      "500": {
+        "description": "Gagal memproses request",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "status": { "type": "boolean", "example": false },
+                "error": { "type": "string", "example": "Gagal memproses request" }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+},
+"/ai/venice": {
+  "get": {
+    "summary": "Venice AI Chat",
+    "description": "Mengirim pertanyaan ke model Venice AI dan mendapatkan jawaban final.",
+    "tags": ["AI"],
+    "parameters": [
+      {
+        "name": "message",
+        "in": "query",
+        "required": true,
+        "description": "Teks atau pertanyaan yang ingin dikirim ke Venice AI",
+        "schema": { "type": "string" }
+      }
+    ],
+    "responses": {
+      "200": {
+        "description": "Berhasil mendapatkan jawaban dari Venice AI",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "status": { "type": "boolean", "example": true },
+                "result": {
+                  "type": "string",
+                  "example": "Halo! Saya Venice AI, siap membantu Anda menjawab pertanyaan atau membuat konten kreatif."
+                }
+              }
+            }
+          }
+        }
+      },
+      "400": {
+        "description": "Request invalid, message kosong",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "status": { "type": "boolean", "example": false },
+                "error": { "type": "string", "example": "Pesan wajib diisi" }
+              }
+            }
+          }
+        }
+      },
+      "500": {
+        "description": "Gagal memproses request",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "status": { "type": "boolean", "example": false },
+                "error": { "type": "string", "example": "Gagal memproses request" }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+},
+"/ai/webpilot": {
+  "get": {
+    "summary": "WebPilot AI Chat",
+    "description": "Mengirim pertanyaan ke model WebPilot AI dan mendapatkan jawaban final beserta sumber jika tersedia.",
+    "tags": ["AI"],
+    "parameters": [
+      {
+        "name": "message",
+        "in": "query",
+        "required": true,
+        "description": "Teks atau pertanyaan yang ingin dikirim ke WebPilot AI",
+        "schema": { "type": "string" }
+      }
+    ],
+    "responses": {
+      "200": {
+        "description": "Berhasil mendapatkan jawaban dari WebPilot AI",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "status": { "type": "boolean", "example": true },
                 "result": {
                   "type": "object",
                   "properties": {
-                    "text": {
+                    "chat": {
                       "type": "string",
-                      "example": "Hello master. *smiles softly* Is there anything you need from me?"
+                      "example": "Berita terbaru hari ini: Pemerintah mengumumkan kebijakan baru..."
                     },
-                    "raw": {
-                      "description": "Data mentah langsung dari HammerAI",
-                      "type": "object"
+                    "source": {
+                      "type": "array",
+                      "items": { "type": "string" },
+                      "example": ["https://www.cnnindonesia.com", "https://www.kompas.com"]
                     }
                   }
                 }
@@ -1127,6 +1326,133 @@
     }
   }
 },
+"/info/komiku": {
+  "get": {
+    "summary": "Komiku Detai",
+    "description": "Mengambil detail lengkap manga dari Komiku termasuk judul, deskripsi, sinopsis, genre, meta info, thumbnail, dan daftar semua episode.",
+    "tags": ["Info"],
+    "parameters": [
+      {
+        "name": "url",
+        "in": "query",
+        "required": true,
+        "description": "URL halaman manga dari Komiku",
+        "schema": { 
+          "type": "string",
+          "example": "https://komiku.id/manga/killer-peter/"
+        }
+      }
+    ],
+    "responses": {
+      "200": {
+        "description": "Berhasil mendapatkan detail manga beserta daftar episode",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "status": { "type": "boolean", "example": true },
+                "creator": { "type": "string", "example": "Z7:林企业" },
+                "url": { "type": "string", "example": "https://komiku.id/manga/killer-peter/" },
+                "details": {
+                  "type": "object",
+                  "properties": {
+                    "title": { "type": "string", "example": "Killer Peter" },
+                    "title_indonesian": { "type": "string", "example": "Pembunuh Peter" },
+                    "short_description": { "type": "string", "example": "Komik action tentang pembunuh legendaris." },
+                    "full_synopsis": { "type": "string", "example": "Cerita lengkap mengenai tokoh utama..." },
+                    "metaInfo": {
+                      "type": "object",
+                      "properties": {
+                        "original_title": { "type": "string", "example": "Killer Peter" },
+                        "indonesian_title": { "type": "string", "example": "Pembunuh Peter" },
+                        "type": { "type": "string", "example": "Manhwa" },
+                        "concept": { "type": "string", "example": "Action, Comedy" },
+                        "author": { "type": "string", "example": "John Doe" },
+                        "status": { "type": "string", "example": "Ongoing" },
+                        "age_rating": { "type": "string", "example": "17+" },
+                        "read_direction": { "type": "string", "example": "Right to Left" }
+                      }
+                    },
+                    "genres": {
+                      "type": "array",
+                      "items": { "type": "string" },
+                      "example": ["Action", "Comedy", "Drama"]
+                    },
+                    "thumbnail_url": { 
+                      "type": "string",
+                      "example": "https://komiku.id/wp-content/uploads/thumb.jpg"
+                    },
+
+                    "episodes": {
+                      "type": "array",
+                      "description": "Daftar semua episode manga",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "title": {
+                            "type": "string",
+                            "example": "Chapter 102"
+                          },
+                          "link": {
+                            "type": "string",
+                            "example": "https://komiku.id/killer-peter-chapter-102/"
+                          },
+                          "views": {
+                            "type": "string",
+                            "example": "12.541"
+                          },
+                          "release_date": {
+                            "type": "string",
+                            "example": "3 hari lalu"
+                          }
+                        }
+                      }
+                    }
+                  }
+                },
+                "error": { 
+                  "type": "string",
+                  "example": null
+                }
+              }
+            }
+          }
+        }
+      },
+
+      "400": {
+        "description": "Request invalid, URL kosong",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "status": { "type": "boolean", "example": false },
+                "error": { "type": "string", "example": "URL komik wajib diisi" }
+              }
+            }
+          }
+        }
+      },
+
+      "500": {
+        "description": "Gagal memproses request",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "status": { "type": "boolean", "example": false },
+                "error": { "type": "string", "example": "Gagal memproses request" }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+},
     "/info/manwha": {
       "get": {
         "summary": "Manwha Detail",
@@ -1406,6 +1732,82 @@
       "500": { "description": "Gagal memproses request" }
     }
   }
+},
+"/search/komiku": {
+      "get": {
+        "summary": "Search Komiku",
+        "description": "Mencari manga berdasarkan keyword di situs Komiku.",
+        "tags": ["Search"],
+        "parameters": [
+          {
+            "name": "keyword",
+            "in": "query",
+            "required": true,
+            "description": "Keyword untuk mencari manga",
+            "schema": { "type": "string", "example": "Killer peter" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Berhasil mendapatkan daftar manga",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": { "type": "boolean", "example": true },
+                    "creator": { "type": "string", "example": "Z7:林企业" },
+                    "keyword": { "type": "string", "example": "solo leveling" },
+                    "total": { "type": "integer", "example": 10 },
+                    "result": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "href": { "type": "string", "example": "https://komiku.id/manga/solo-leveling/" },
+                          "thumbnail": { "type": "string", "example": "https://komiku.id/img/solo-leveling.jpg" },
+                          "type": { "type": "string", "example": "Manga" },
+                          "genre": { "type": "string", "example": "Action, Fantasy" },
+                          "title": { "type": "string", "example": "Solo Leveling" },
+                          "last_update": { "type": "string", "example": "12 Mei 2025" }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Request invalid, keyword kosong",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": { "type": "boolean", "example": false },
+                    "error": { "type": "string", "example": "Keyword wajib diisi" }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Gagal memproses request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": { "type": "boolean", "example": false },
+                    "error": { "type": "string", "example": "Scrape error" }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
 },
     "/search/loker": {
       "get": {
@@ -1751,6 +2153,189 @@
       },
       "400": { "description": "Query tidak disertakan" },
       "500": { "description": "Gagal memproses request" }
+    }
+  }
+},
+"/search/tiktok-photo": {
+  "get": {
+    "summary": "TikTok Photo",
+    "description": "Mengambil data photo dari TikTok.",
+    "tags": ["Search"],
+    "parameters": [
+      {
+        "name": "keyword",
+        "in": "query",
+        "required": false,
+        "description": "Kata kunci pencarian TikTok (default: trending)",
+        "schema": { "type": "string" }
+      }
+    ],
+    "responses": {
+      "200": {
+        "description": "Berhasil mendapatkan daftar video",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "status": { "type": "boolean", "example": true },
+                "creator": { "type": "string", "example": "Z7:林企业" },
+                "total": { "type": "integer", "example": 20 },
+                "keyword": { "type": "string", "example": "trending" },
+                "result": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "id": { "type": "string", "example": "703838293847293847" },
+                      "title": { "type": "string", "example": "Video Trending" },
+                      "time": { "type": "string", "example": "2025-11-22T12:34:56Z" },
+                      "author": {
+                        "type": "object",
+                        "properties": {
+                          "nickname": { "type": "string", "example": "user123" },
+                          "username": { "type": "string", "example": "user123" },
+                          "avatar": { "type": "string", "example": "https://tikwm.com/avatar.jpg" }
+                        }
+                      },
+                      "cover": { "type": "string", "example": "https://tikwm.com/cover.jpg" },
+                      "play": { "type": "string", "example": "https://tikwm.com/play.mp4" },
+                      "images": { 
+                        "type": "array", 
+                        "items": { "type": "string" }, 
+                        "example": ["https://tikwm.com/img1.jpg","https://tikwm.com/img2.jpg"] 
+                      },
+                      "stats": {
+                        "type": "object",
+                        "properties": {
+                          "views": { "type": "integer", "example": 12345 },
+                          "likes": { "type": "integer", "example": 234 },
+                          "comments": { "type": "integer", "example": 12 },
+                          "shares": { "type": "integer", "example": 5 }
+                        }
+                      }
+                    }
+                  }
+                },
+                "error": { "type": "string", "example": null }
+              }
+            }
+          }
+        }
+      },
+      "500": {
+        "description": "Gagal memproses request",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "status": { "type": "boolean", "example": false },
+                "error": { "type": "string", "example": "Gagal memproses request" }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+},
+"/search/tiktok-user": {
+  "get": {
+    "summary": "TikTok User",
+    "description": "Mengambil data video/photo dari akun TikTok.",
+    "tags": ["Search"],
+    "parameters": [
+      {
+        "name": "username",
+        "in": "query",
+        "required": true,
+        "description": "Username TikTok",
+        "schema": { "type": "string", "example": "z7nemophila" }
+      }
+    ],
+    "responses": {
+      "200": {
+        "description": "Berhasil mendapatkan daftar video/photo dari user TikTok",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "status": { "type": "boolean", "example": true },
+                "creator": { "type": "string", "example": "Z7:林企业" },
+                "username": { "type": "string", "example": "z7nemophila" },
+                "total": { "type": "integer", "example": 50 },
+                "result": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "id": { "type": "string", "example": "703838293847293847" },
+                      "desc": { "type": "string", "example": "Video Title" },
+                      "create_time": { "type": "string", "example": "2025-11-22T12:34:56Z" },
+                      "type": { "type": "string", "example": "video" },
+                      "author": {
+                        "type": "object",
+                        "properties": {
+                          "nickname": { "type": "string", "example": "user123" },
+                          "username": { "type": "string", "example": "user123" },
+                          "avatar": { "type": "string", "example": "https://tikwm.com/avatar.jpg" }
+                        }
+                      },
+                      "cover": { "type": "string", "example": "https://tikwm.com/cover.jpg" },
+                      "play": { "type": "string", "example": "https://tikwm.com/play.mp4" },
+                      "images": {
+                        "type": "array",
+                        "items": { "type": "string" },
+                        "example": ["https://tikwm.com/img1.jpg","https://tikwm.com/img2.jpg"]
+                      },
+                      "stats": {
+                        "type": "object",
+                        "properties": {
+                          "views": { "type": "integer", "example": 12345 },
+                          "likes": { "type": "integer", "example": 234 },
+                          "comments": { "type": "integer", "example": 12 },
+                          "shares": { "type": "integer", "example": 5 }
+                        }
+                      }
+                    }
+                  }
+                },
+                "error": { "type": "string", "example": null }
+              }
+            }
+          }
+        }
+      },
+      "400": {
+        "description": "Request invalid, username kosong",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "status": { "type": "boolean", "example": false },
+                "error": { "type": "string", "example": "Username wajib diisi" }
+              }
+            }
+          }
+        }
+      },
+      "500": {
+        "description": "Gagal memproses request",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "status": { "type": "boolean", "example": false },
+                "error": { "type": "string", "example": "Gagal memproses request" }
+              }
+            }
+          }
+        }
+      }
     }
   }
 },
