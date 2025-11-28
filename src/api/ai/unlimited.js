@@ -4,8 +4,7 @@ module.exports = function(app) {
 
     async function unlimitedai(question) {
         if (!question) throw new Error('Question is required.');
-
-        // import uuidv4 secara dinamis
+        
         const { v4: uuidv4 } = await import('uuid');
 
         const inst = axios.create({

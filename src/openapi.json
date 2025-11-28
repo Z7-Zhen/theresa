@@ -15,6 +15,7 @@
     { "name": "Downloader" },
     { "name": "Image" },
     { "name": "Info" },
+        { "name": "News" },
     { "name": "orderkouta" },
     { "name": "Search" },
     { "name": "Stalk" },
@@ -1264,6 +1265,28 @@
         }
       }
     },
+    "/info/halodoc": {
+  "get": {
+    "summary": "Detail Article (Halodoc)",
+    "description": "Melihat detail artikel kesehatan dari Halodoc",
+    "tags": ["Info"],
+    "parameters": [
+      {
+        "name": "url",
+        "in": "query",
+        "required": true,
+        "schema": { "type": "string", "format": "uri" },
+        "example": "https://www.halodoc.com/artikel/..."
+      }
+    ],
+    "responses": {
+      "200": {
+        "description": "Respon berhasil"
+      },
+      "500": { "description": "Gagal memproses request" }
+    }
+  }
+},
     "/info/jadwalbola": {
   "get": {
     "summary": "Jadwal Sepakbola",
@@ -1486,6 +1509,100 @@
         }
       }
     },
+"/news/detik": {
+  "get": {
+    "summary": "Detik News",
+    "description": "Scraping berita terpopuler dari Detik.com",
+    "tags": ["News"],
+    "responses": {
+      "200": {
+        "description": "Respon berhasil",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "berita": {
+                    "type": "string",
+                    "example": "Judul berita terpopuler Detik"
+                  },
+                  "berita_url": {
+                    "type": "string",
+                    "format": "uri",
+                    "example": "https://news.detik.com/berita/..."
+                  },
+                  "berita_thumb": {
+                    "type": "string",
+                    "format": "uri",
+                    "nullable": true,
+                    "example": "https://akcdn.detik.net.id/...jpg"
+                  },
+                  "berita_diupload": {
+                    "type": "string",
+                    "example": "Senin, 25 Nov 2024 10:30 WIB"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "500": { "description": "Gagal memproses request" }
+    }
+  }
+},
+"/news/kontan": {
+  "get": {
+    "summary": "Kontan News",
+    "description": "Scraping berita terbaru dari Kontan.co.id",
+    "tags": ["News"],
+    "responses": {
+      "200": {
+        "description": "Respon berhasil",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "berita": {
+                    "type": "string",
+                    "example": "Rupiah menguat terhadap dolar AS pada perdagangan pagi ini"
+                  },
+                  "berita_url": {
+                    "type": "string",
+                    "format": "uri",
+                    "example": "https://www.kontan.co.id/news/rupiah-menguat"
+                  },
+                  "berita_thumb": {
+                    "type": "string",
+                    "format": "uri",
+                    "nullable": true,
+                    "example": "https://img.kontan.co.id/thumb.jpg"
+                  },
+                  "berita_jenis": {
+                    "type": "string",
+                    "example": "Makro Ekonomi"
+                  },
+                  "berita_diupload": {
+                    "type": "string",
+                    "example": "2 jam lalu"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "500": { 
+        "description": "Gagal memproses request" 
+      }
+    }
+  }
+},
     "/search/alkitab": {
   "get": {
     "summary": "Alkitab Search",
@@ -1684,6 +1801,28 @@
         }
       }
     },
+    "/search/halodoc": {
+  "get": {
+    "summary": "Search Article (Halodoc)",
+    "description": "Mencari artikel kesehatan dari Halodoc",
+    "tags": ["Search"],
+    "parameters": [
+      {
+        "name": "query",
+        "in": "query",
+        "required": true,
+        "schema": { "type": "string" },
+        "example": "batuk"
+      }
+    ],
+    "responses": {
+      "200": {
+        "description": "Respon berhasil"
+      },
+      "500": { "description": "Gagal memproses request" }
+    }
+  }
+},
 "/search/happymod": {
   "get": {
     "summary": "HappyMod",
@@ -1966,6 +2105,52 @@
       },
       "400": { "description": "Query tidak disertakan" },
       "500": { "description": "Gagal memproses request" }
+    }
+  }
+},
+"/search/mcpedl": {
+  "get": {
+    "summary": "Search MCPEDL Mods",
+    "description": "Mencari mod MCPEDL berdasarkan query",
+    "tags": ["Search"],
+    "parameters": [
+      {
+        "name": "query",
+        "in": "query",
+        "required": true,
+        "schema": { "type": "string" },
+        "example": "minecraft texture"
+      }
+    ],
+    "responses": {
+      "200": {
+        "description": "Respon berhasil",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "success": { "type": "boolean" },
+                "data": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "title": { "type": "string" },
+                      "url": { "type": "string", "format": "uri" },
+                      "thumbnailUrl": { "type": "string", "format": "uri", "nullable": true },
+                      "rating": { "type": "number" }
+                    }
+                  }
+                },
+                "error": { "type": "string", "nullable": true }
+              }
+            }
+          }
+        }
+      },
+      "400": { "description": "Query parameter tidak diberikan" },
+      "500": { "description": "Terjadi error saat request" }
     }
   }
 },
