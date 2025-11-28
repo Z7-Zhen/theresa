@@ -774,13 +774,13 @@
 "/download/douyin": {
   "get": {
     "summary": "Douyin Downloader",
-    "description": "Download video atau gambar dari Douyin/TikTok China",
+    "description": "Download video dari Douyin/TikTok China.",
     "tags": ["Downloader"],
     "parameters": [
       {
         "name": "url",
         "in": "query",
-        "description": "URL video atau gambar Douyin/TikTok",
+        "description": "URL video Douyin/TikTok",
         "required": true,
         "schema": { "type": "string", "format": "uri" }
       }
@@ -797,17 +797,12 @@
                 "result": {
                   "type": "object",
                   "properties": {
-                    "type": { "type": "string", "example": "video" },
-                    "title": { "type": "string", "example": "Judul Video Douyin" },
-                    "duration": { "type": "string", "example": "00:15" },
+                    "caption": { "type": "string", "example": "Judul Video Douyin" },
                     "thumbnail": { "type": "string", "format": "uri", "example": "https://douyin.com/thumb.jpg" },
-                    "hd": { "type": "string", "format": "uri", "example": "https://douyin.com/video_hd.mp4" },
-                    "mp3": { "type": "string", "format": "uri", "example": "https://douyin.com/audio.mp3" },
-                    "images": {
-                      "type": "array",
-                      "items": { "type": "string", "format": "uri" },
-                      "example": ["https://douyin.com/image1.jpg", "https://douyin.com/image2.jpg"]
-                    }
+                    "video": { "type": "string", "format": "uri", "example": "https://douyin.com/video.mp4" },
+                    "video_hd": { "type": "string", "format": "uri", "example": "https://douyin.com/video_hd.mp4" },
+                    "audio": { "type": "string", "format": "uri", "example": "https://douyin.com/audio.mp3" },
+                    "images": { "type": "array", "items": { "type": "string" }, "nullable": true, "example": null }
                   }
                 }
               }
