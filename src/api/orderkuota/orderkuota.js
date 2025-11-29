@@ -4,9 +4,7 @@ const crypto = require("crypto");
 const QRCode = require('qrcode');
 const { ImageUploadService } = require('node-upload-images');
 
-// ============================
-// CLASS OrderKuota
-// ============================
+
 class OrderKuota {
   static API_URL = 'https://app.orderkuota.com/api/v2';
   static API_URL_ORDER = 'https://app.orderkuota.com/api/v2/order';
@@ -157,9 +155,7 @@ class OrderKuota {
   }
 }
 
-// ============================
-// FUNCTION TAMBAHAN
-// ============================
+
 function convertCRC16(str) {
   let crc = 0xFFFF;
   for (let c = 0; c < str.length; c++) {
@@ -183,7 +179,7 @@ function generateExpirationTime() {
 
 async function elxyzFile(buffer) {
   const service = new ImageUploadService('pixhost.to');
-  const { directLink } = await service.uploadFromBinary(buffer, 'skyzo.png');
+  const { directLink } = await service.uploadFromBinary(buffer, 'z7.png');
   return directLink;
 }
 
@@ -207,9 +203,7 @@ async function createQRIS(amount, codeqr) {
   };
 }
 
-// ============================
-// ROUTING STYLE BARU TANPA APIKEY
-// ============================
+
 module.exports = function(app) {
 
   app.get('/orderkuota/getotp', async (req, res) => {
