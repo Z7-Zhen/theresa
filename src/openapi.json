@@ -15,8 +15,8 @@
     { "name": "Downloader" },
     { "name": "Image" },
     { "name": "Info" },
-        { "name": "News" },
-    { "name": "orderkouta" },
+   { "name": "News" },
+    { "name": "Orderkuota" },
     { "name": "Search" },
     { "name": "Stalk" },
     { "name": "Tools" }
@@ -1647,6 +1647,192 @@
       },
       "400": { "description": "Query tidak disertakan" },
       "500": { "description": "Gagal memproses request" }
+    }
+  }
+},
+"/orderkuota/createpayment": {
+  "get": {
+    "summary": "Generate QRIS Payment",
+    "description": "Membuat QRIS pembayaran baru.",
+    "tags": ["Orderkuota"],
+    "parameters": [
+      { "name": "username", "in": "query", "required": true, "schema": { "type": "string" } },
+      { "name": "token", "in": "query", "required": true, "schema": { "type": "string" } },
+      { "name": "amount", "in": "query", "required": true, "schema": { "type": "string" } }
+    ],
+    "responses": {
+      "200": {
+        "description": "QRIS berhasil dibuat",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "status": { "type": "boolean", "example": true },
+                "result": {
+                  "type": "object",
+                  "properties": {
+                    "idtransaksi": { "type": "string" },
+                    "jumlah": { "type": "string" },
+                    "expired": { "type": "string" },
+                    "imageqris": {
+                      "type": "object",
+                      "properties": {
+                        "url": { "type": "string", "format": "uri" }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "500": { "description": "Gagal membuat QRIS" }
+    }
+  }
+},
+"/orderkuota/getotp": {
+  "get": {
+    "summary": "Get OTP (Tahap 1)",
+    "description": "Mengambil OTP login OrderKuota menggunakan username dan password.",
+    "tags": ["Orderkuota"],
+    "parameters": [
+      { "name": "username", "in": "query", "required": true, "schema": { "type": "string" } },
+      { "name": "password", "in": "query", "required": true, "schema": { "type": "string" } }
+    ],
+    "responses": {
+      "200": {
+        "description": "OTP berhasil diambil",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "status": { "type": "boolean", "example": true },
+                "result": { "type": "object" }
+              }
+            }
+          }
+        }
+      },
+      "500": { "description": "Gagal mengambil OTP" }
+    }
+  }
+},
+"/orderkuota/gettoken": {
+  "get": {
+    "summary": "Get Token (Tahap 2)",
+    "description": "Mengambil token login menggunakan OTP.",
+    "tags": ["Orderkuota"],
+    "parameters": [
+      { "name": "username", "in": "query", "required": true, "schema": { "type": "string" } },
+      { "name": "otp", "in": "query", "required": true, "schema": { "type": "string" } }
+    ],
+    "responses": {
+      "200": {
+        "description": "Token berhasil diambil",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "status": { "type": "boolean", "example": true },
+                "result": { "type": "object" }
+              }
+            }
+          }
+        }
+      },
+      "500": { "description": "Gagal mengambil token" }
+    }
+  }
+},
+"/orderkuota/mutasiqr": {
+  "get": {
+    "summary": "Cek Mutasi QRIS",
+    "description": "Melihat daftar mutasi transaksi QRIS OrderKuota.",
+    "tags": ["Orderkuota"],
+    "parameters": [
+      { "name": "username", "in": "query", "required": true, "schema": { "type": "string" } },
+      { "name": "token", "in": "query", "required": true, "schema": { "type": "string" } }
+    ],
+    "responses": {
+      "200": {
+        "description": "Mutasi berhasil diambil",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "status": { "type": "boolean", "example": true },
+                "result": {
+                  "type": "array",
+                  "items": { "type": "object" }
+                }
+              }
+            }
+          }
+        }
+      },
+      "500": { "description": "Gagal mengambil mutasi" }
+    }
+  }
+},
+"/orderkuota/profile": {
+  "get": {
+    "summary": "Cek Profile",
+    "description": "Mengambil data profile akun OrderKuota.",
+    "tags": ["Orderkuota"],
+    "parameters": [
+      { "name": "username", "in": "query", "required": true, "schema": { "type": "string" } },
+      { "name": "token", "in": "query", "required": true, "schema": { "type": "string" } }
+    ],
+    "responses": {
+      "200": {
+        "description": "Profile berhasil diambil",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "status": { "type": "boolean", "example": true },
+                "result": { "type": "object" }
+              }
+            }
+          }
+        }
+      },
+      "500": { "description": "Gagal mengambil profile" }
+    }
+  }
+},
+"/orderkuota/wdqr": {
+  "get": {
+    "summary": "Withdraw QRIS",
+    "description": "Menarik saldo QRIS OrderKuota.",
+    "tags": ["Orderkuota"],
+    "parameters": [
+      { "name": "username", "in": "query", "required": true, "schema": { "type": "string" } },
+      { "name": "token", "in": "query", "required": true, "schema": { "type": "string" } },
+      { "name": "amount", "in": "query", "required": true, "schema": { "type": "string" } }
+    ],
+    "responses": {
+      "200": {
+        "description": "Withdraw berhasil",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "status": { "type": "boolean", "example": true },
+                "result": { "type": "object" }
+              }
+            }
+          }
+        }
+      },
+      "500": { "description": "Gagal withdraw" }
     }
   }
 },
