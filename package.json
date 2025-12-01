@@ -21,6 +21,7 @@
     "express-fileupload": "^1.5.2",
     "fs": "^0.0.1-security",
     "https": "^1.0.0",
+    "jimp": "^0.16.1",
     "node-fetch": "^2.6.1",
     "node-upload-images": "^1.0.1",
     "qrcode": "^1.5.4",
